@@ -808,6 +808,10 @@ predict_ada <- predict(model_ada, testData)
 confusionMatrix(reference = testData$class, data = predict_ada, mode='everything', positive='Yes') 
 
 
+### save the ROC with svmRadiacl plot to local drive
+PlotROCSaveJPG(rocobj_ada, path, "ada", "ADA" )
+
+
 
 
 #############################################
@@ -847,6 +851,10 @@ rocobj_xgbDART <- roc(model_xgbDART$pred$obs,
 ## Step #9.3: Predict on testData and Compute the confusion matrix
 predict_xgbDART <- predict(model_xgbDART, testData)
 confusionMatrix(reference = testData$class, data = predict_xgbDART, mode='everything', positive='Yes') 
+
+
+### save the ROC with svmRadiacl plot to local drive
+PlotROCSaveJPG(rocobj_xgbDART, path, "xgbDART", "xgbDART" )
 
 
 
