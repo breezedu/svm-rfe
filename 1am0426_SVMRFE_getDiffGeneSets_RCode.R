@@ -733,6 +733,39 @@ legend("bottomright",
 
 
 
+
+
+###############################################################################################
+## 0426 update print out variable set
+## 
+set.size = 10 # suppoe you want set-size of 10
+
+rfe.vars <- rfe_cv_svmR$variables 
+
+rfe.set <- rfe.vars[rfe.vars$Variables==set.size,  ] # selects variables of set-size (= 10 here)
+
+rfe.set
+
+
+#use aggregate to calculate mean ranking score (under column "Overall")
+lm.set <- aggregate(rfe.set[, c("Overall")], list(rfe.set$var), mean)
+
+#order from highest to low, and select first 10:
+rfe.order <- order(lm.set[, c("x")], decreasing = TRUE)[1:set.size]
+rfe.set[rfe.order, ]
+###############################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
 ######################################################################
 ## update
 library(caret)
