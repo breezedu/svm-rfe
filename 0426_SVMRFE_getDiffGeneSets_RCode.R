@@ -37,9 +37,11 @@ count <- read.table("D:/miRNA_Prj/miRNA_OmicData.txt", row.names = 1, header = T
 progress <- read.table("D:/miRNA_Prj/miRNA_OmicData_Design.txt", row.names = 1, header = T, sep = "\t")
 
 top.genes <- readLines("D:/miRNA_Prj/0414_cleanedInput/top_list.txt")
-
+length(top.genes)
+datamatrix <- count
 count <- datamatrix[ row.names(datamatrix) %in% top.genes, ]
 
+dim(count)
 
 x <- t(count)
 y <- progress$Progression.value
@@ -108,7 +110,7 @@ trainctrl <- trainControl(classProbs= TRUE,
 
 ## 
 ## training control set with svm Radical
-trainctrl_rf <- trainControl(classProbs= TRUE,
+trainctrl_cv <- trainControl(classProbs= TRUE,
                           verboseIter = TRUE,
                           summaryFunction = twoClassSummary, 
                           method = "cv", 
@@ -129,9 +131,9 @@ tunegrid <- expand.grid(.mtry=c(1:10))
 ##########################################################################
 ## this step might take ~60 mins, depends on the hardware of the computer
 
-rfe_rf <- rfe(t(count), progress$Progression.Logit, sizes=c(1:500),
+rfe_rf <- rfe(t(count), progress$Progression.Logit, sizes=c(1:49),
               method="rf",
-              rfeControl = ctrl, 
+              rfeControl = trainctrl_cv, 
               metric = "ROC", 
               trControl = trainctrl,
               tuneGrid = tunegrid,
@@ -189,7 +191,7 @@ selectedIndices
 
 #############################
 ## YOU can set any number of genes here
-n_genes <- 
+n_genes <- 13
   
 ## or, just call the best geneset by assigning the rfe_rf$optsize to the n_genes;
 n_genes <- rfe_rf$optsize
@@ -217,7 +219,7 @@ legend("bottomright",
        lwd=4
        )
 
-rfe_rf$results[13, ]
+rfe_rf$results[13, ] 
 
 auc(roc_obj)
 
@@ -252,10 +254,11 @@ head( roc_results)
 ## training control with svmRadical
 
 
-
+################################################
+## Updated code at 4/26/2019
 ## 
 ## control RFE set 
-ctrl <- rfeControl(functions = rfFuncs,
+rfe_repeatedcv <- rfeControl(functions = rfFuncs,
                    method = "repeatedcv",
                    number = 10,
                    repeats = 3,
@@ -263,19 +266,29 @@ ctrl <- rfeControl(functions = rfFuncs,
                    saveDetails = TRUE,
                    returnResamp = "all")
 
+## control RFE set 
+rfe_cv <- rfeControl(functions = rfFuncs,
+                              method = "cv",
+                              number = 10,
+                              repeats = 3,
+                              verbose = TRUE,
+                              saveDetails = TRUE,
+                              returnResamp = "all")
+
+
 
 ## 
 ## training control set 
-trainctrl <- trainControl(classProbs= TRUE,
+trainctrl_rf <- trainControl(classProbs= TRUE,
                           verboseIter = TRUE,
                           summaryFunction = twoClassSummary, 
-                          method = "cv", 
+                          method = "rf", 
                           number = 10 ,
                           returnResamp = "final", 
                           returnData = TRUE)
 
 
-## 
+################################################################## 
 ## training control set with svm Radical
 trainctrl_svm <- trainControl(classProbs= TRUE,
                               verboseIter = TRUE,
@@ -286,39 +299,120 @@ trainctrl_svm <- trainControl(classProbs= TRUE,
                               returnData = TRUE)
 
 
+trainctrl_svmLinear <- trainControl(classProbs= TRUE,
+                              verboseIter = TRUE,
+                              summaryFunction = twoClassSummary, 
+                              method = "svmLinear", 
+                              number = 10 ,
+                              returnResamp = "final", 
+                              returnData = TRUE)
 
-rfe_rf_svm <- rfe(t(count), progress$Progression.Logit, sizes=c(1:784),
-                  method="rf",
-                  rfeControl = ctrl, 
+trainctrl_mars <- trainControl( classProbs = TRUE,
+                                verboseIter = TRUE,
+                                summaryFunction = twoClassSummary,
+                                method = "earth",
+                                number = 10,
+                                returnData = TRUE,
+                                returnResamp = "final"
+                                 )
+
+
+trainctrl_rf <- trainControl( classProbs = TRUE,
+                                verboseIter = TRUE,
+                                summaryFunction = twoClassSummary,
+                                method = "rf",
+                                number = 10,
+                                returnData = TRUE,
+                                returnResamp = "final"
+                              )
+
+
+
+
+
+rfe_cv_svmR <- rfe(t(count), progress$Progression.Logit, sizes=c(1:49),
+                  #method="svmRadial",
+                  rfeControl = ctrl_cv, 
                   metric = "ROC", 
                   trControl = trainctrl_svm,
                   tuneGrid = tunegrid,
                   preProc = c("center", "scale")
                   )
 
+rfe_cv_svmR$optsize
+
+
+n_genes <- 13
+## or, just call the best geneset by assigning the rfe_rf$optsize to the n_genes;
+n_genes <- rfe_cv_svmR$optsize
+
+selectedIndices <- rfe_rf$pred$Variables == n_genes
+
+roc_obj <- roc(rfe_rf$pred$obs[selectedIndices], rfe_rf$pred$yes[selectedIndices], plot=TRUE, 
+               legacy.axes=TRUE, percent=TRUE, 
+               ci=TRUE,
+               # of="se",
+               main= paste0( n_genes," genes SVM_Radial and CV" ),
+               xlab="False Positive Percentage", 
+               ylab="True Postive Percentage", 
+               col="darkblue", 
+               lwd=4, 
+               print.auc = T, 
+               print.auc.x=45
+)
+
+
+
+legend("bottomright", 
+       legend=c( paste( n_genes, "genes ROC-AUC 95% CI ", round(ci(roc_obj)[1], 2), "-", round(ci(roc_obj)[3], 2) ) ), 
+       col=c("darkblue"), 
+       lwd=4
+)
+
+rfe_cv_svmR$results[n_genes, ] 
+rfe_cv_svmR$results
 
 ## check SVM-RFE results; 
-rfe_rf_svm
+rfe_cv_svmR$optVariables
 
 ## check optmized variables (genes )
-rfe_rf_svm$optVariables
+rfe_cv_svmR$variables$
 
-
+## importance <- varImp(rfe_cv_svmR, scale=FALSE)
+## predictors(rfe_cv_svmR)
+  
 ## based on above results, there are 13 genes showing 
-selectedIndices <- rfe_rf_svm$pred$Variables == rfe_rf_svm$optsize
+selectedIndices <- rfe_rcv_svm$pred$Variables == rfe_rcv_svm$optsize
 
 ## require(pROC) 
-rfe_rf_svm$pred$yes
-ROC = plot.roc(rfe_rf_svm$pred$obs[selectedIndices],
-               rfe_rf_svm$pred$yes[selectedIndices], 
-               legacy.axes = TRUE
-)
+rfe_rcv_svm$pred$yes
+ROC = plot.roc(rfe_rcv_svm$pred$obs[selectedIndices],
+               rfe_rcv_svm$pred$yes[selectedIndices], 
+               ci = TRUE,
+               main = "SVM repeatedCV",
+               legacy.axes = TRUE,
+               print.auc = TRUE
+              )
 
 # check first 6 gene sets (gene #1-6) result; 
 head( rfe_rf_svm$results )
 
 # check the last 6 group of gene setns (gene #779-784) result; 
 tail( rfe_rf_svm$results )
+
+
+
+rfe_cv_svm <- rfe(t(count), progress$Progression.Logit, sizes=c(1:49),
+                   #method="knn",
+                   rfeControl = ctrl_cv, 
+                   metric = "ROC", 
+                   trControl = trainctrl_svm,
+                   tuneGrid = tunegrid,
+                   preProc = c("center", "scale")
+                  )
+
+rfe_cv_svm$optsize
+
 
 
 ## plot ROC-AUC
