@@ -21,15 +21,6 @@
 ## this code will run RFE + cross-validation on all 784 genes, for any combination number of genes;
 ## 
 
-library(sigFeature)
-library(SummarizedExperiment)
-
-# check data frame
-data(ExampleRawData, package="sigFeature")
-ExampleRawData
-ExampleRawData$sampleLabels
-
-
 
 
 ## on Lenove laptop
@@ -39,6 +30,7 @@ progress <- read.table("D:/miRNA_Prj/miRNA_OmicData_Design.txt", row.names = 1, 
 top.genes <- readLines("D:/miRNA_Prj/0414_cleanedInput/top_list.txt")
 length(top.genes)
 datamatrix <- count
+
 count <- datamatrix[ row.names(datamatrix) %in% top.genes, ]
 
 dim(count)
@@ -87,7 +79,7 @@ rfFuncs$summary <- twoClassSummary
 ctrl <- rfeControl(functions = rfFuncs,
                    method = "repeatedcv",
                    number = 10,
-                   repeats = 3,
+                   repeats = 5,
                    verbose = TRUE,
                    saveDetails = TRUE,
                    returnResamp = "all")
@@ -106,16 +98,17 @@ trainctrl <- trainControl(classProbs= TRUE,
                           summaryFunction = twoClassSummary, 
                           method = "cv", 
                           number = 10 ,
+                        ##  repeats = 3,
                           returnResamp = "final", 
                           returnData = TRUE)
 
 
 ## 
 ## training control set with svm Radical
-trainctrl_cv <- trainControl(classProbs= TRUE,
+trainctrl_knn <- trainControl(classProbs= TRUE,
                           verboseIter = TRUE,
                           summaryFunction = twoClassSummary, 
-                          method = "cv", 
+                          method = "knn", 
                           number = 10 ,
                           returnResamp = "final", 
                           returnData = TRUE)
@@ -135,7 +128,7 @@ tunegrid <- expand.grid(.mtry=c(1:10))
 
 rfe_rf <- rfe(t(count), progress$Progression.Logit, sizes=c(1:49),
               method="rf",
-              rfeControl = trainctrl_cv, 
+              rfeControl = ctrl, 
               metric = "ROC", 
               trControl = trainctrl,
               tuneGrid = tunegrid,
@@ -146,8 +139,81 @@ rfe_rf <- rfe(t(count), progress$Progression.Logit, sizes=c(1:49),
 ## check RFE results; 
 rfe_rf 
 
+
+##########################################################################
+## this step might take ~60 mins, depends on the hardware of the computer
+set.seed(123)
+rfe_svm <- rfe(t(count), progress$Progression.Logit, sizes=c(1:784),
+              method="svmRadial",
+              rfeControl = ctrl, 
+              metric = "ROC", 
+              trControl = trainctrl,
+              tuneGrid = tunegrid,
+              preProc = c("center", "scale")
+              )
+
+plot_ROC(rfe_svm, " svm-RFE model") 
+
 ## check optmized variables (genes )
 rfe_rf$optVariables
+rfe_svm$optVariables
+
+
+
+printOptSet(13, rfe_rf)
+
+printOptSet(13, rfe_cv_svmR)
+
+printOptSet <- function(set.size, rfe_model){
+  
+  ###############################################################################################
+  ## 0426 update print out variable set
+  ## 
+  # set.size = 13 # suppoe you want set-size of 10
+  
+  rfe.vars <- rfe_model$variables 
+  
+  rfe.set <- rfe.vars[rfe.vars$Variables==set.size,  ] # selects variables of set-size (= 10 here)
+  
+  rfe.set
+  
+  #use aggregate to calculate mean ranking score (under column "Overall")
+  lm.set <- aggregate(rfe.set[, c("Overall")], list(rfe.set$var), mean)
+  
+  #order from highest to low, and select first 10:
+  rfe.order <- order(lm.set[, c("x")], decreasing = TRUE)[1:set.size]
+
+  print( rfe.set[rfe.order, ] )
+  
+  ###############################################################################################
+  
+  
+}
+
+
+###############################################################################################
+## 0426 update print out variable set
+## 
+set.size = 13 # suppoe you want set-size of 10
+
+rfe.vars <- rfe_rf$variables 
+
+rfe.set <- rfe.vars[rfe.vars$Variables==set.size,  ] # selects variables of set-size (= 10 here)
+
+rfe.set
+
+
+#use aggregate to calculate mean ranking score (under column "Overall")
+lm.set <- aggregate(rfe.set[, c("Overall")], list(rfe.set$var), mean)
+
+#order from highest to low, and select first 10:
+rfe.order <- order(lm.set[, c("x")], decreasing = TRUE)[1:set.size]
+rfe.set[rfe.order, ]
+###############################################################################################
+
+plot_ROC(rfe_rf, "RFE Random Forest")
+plot_ROC(rfe_svm, " RFE SVM model")
+
 
 
 ####################################################################### 
@@ -414,11 +480,18 @@ run_RFE <- function(data.count, class, rfe_ctr, train_ctr, method.assign){
 
 
 #####################################################################################################
-plot_ROC <- function(rfe_model, main.str){
+### 
+###    Plot_ROC function; 
+###     Pass a rfe model and main string argument
+###
+#####################################################################################################
+plot_ROC <- function(rfe_model, main.str, n_genes){
   
-  ## n_genes <- 13
+  ########################################
+  ## one argument n_genes to this function; 
   ## or, just call the best geneset by assigning the rfe_rf$optsize to the n_genes;
-  n_genes <- rfe_model$optsize
+  if( is.null( n_genes) )
+    n_genes <- rfe_model$optsize
   
   selectedIndices <- rfe_model$pred$Variables == n_genes
   
