@@ -195,11 +195,12 @@ rfe_rf$optVariables
 rfe_svm$optVariables
 rfe_svm$optsize
 rfe_svm$results
-
+auc(roc_svm)
 
 selectedIndices <- rfe_svm$pred$Variables == rfe_svm$optsize
 selectedIndices
-roc_obj <- roc(rfe_svm$pred$obs[selectedIndices], rfe_svm$pred$yes[selectedIndices], plot=TRUE, 
+n_genes <- rfe_svm$optsize
+roc_svm <- roc(rfe_svm$pred$obs[selectedIndices], rfe_svm$pred$yes[selectedIndices], plot=TRUE, 
                legacy.axes=TRUE, percent=TRUE, 
                ci=TRUE,
                # of="se",
@@ -213,7 +214,7 @@ roc_obj <- roc(rfe_svm$pred$obs[selectedIndices], rfe_svm$pred$yes[selectedIndic
 )
 
 ci.coords()
-ci.coords(rfe_svm, x=0.9, input = "sensitivity", ret=c("specificity", "ppv", "npv") )         
+ci.coords(roc_svm, x=0.9, input = "sensitivity", ret=c("specificity", "ppv", "npv") )         
 
 
 printOptSet(13, rfe_rf)
