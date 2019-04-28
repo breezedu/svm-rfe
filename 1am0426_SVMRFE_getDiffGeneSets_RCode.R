@@ -141,7 +141,7 @@ rfe_rf
 
 
 ##########################################################################
-## this step might take ~60 mins, depends on the hardware of the computer
+## this step might take ~120 mins, depends on the hardware of the computer
 set.seed(123)
 rfe_svm <- rfe(t(count), progress$Progression.Logit, sizes=c(1:784),
               method="svmRadial",
