@@ -1,0 +1,475 @@
+<Info>
+Description    	Perform WGCNA in R and import network results, Loading table back to AS
+Author         	Jeff Du 
+Created        	04/23/2019 
+Updated		      
+
+<Input>
+
+ImportAnnotation=True
+work_dir = 
+Heightcutoff =
+SmallClustersize = 
+
+# output_folder 
+  
+<Output>
+SampleClustering.pdf
+sampleClustering2.pdf
+sampleClusteringDendrogram.pdf
+Count-dataInput.RData
+
+<Script>
+ 
+  
+#############################################################
+## input expression, design and annotation tables
+dat <- as.data.frame( input.data )
+des <- as.data.frame( input.design )
+ano <- as.data.frame( input.annotation )
+
+Height <- input.parameters[["Heightcutoff"]]
+ClusterSize <- input.parameters[["SmallClustersize"]]
+
+################################################################
+## Count not choose directory by choose.dir() function on server
+## 
+
+# workingDir <- choose.dir(getwd(), "Choose a suitable folder")
+# output_dir <- choose.dir(getwd(), "Choose a suitable folder")
+
+#############################################################################
+## installing all necessary packages/dependencies would take 1-1.5 hours
+# 
+# install.packages("BiocManager") 
+# BiocManager::install("WGCNA") 
+# 
+# 
+# install.packages(  c("matrixStats", "Hmisc", 
+#                       "splines", "foreach", 
+#                       "doParallel", "fastcluster", 
+#                       "dynamicTreeCut", "survival")) # 
+# 
+# 
+# install.packages('Rcpp')
+# install.packages('colorspace')
+# install.packages('stringi')
+# 
+# source("http://bioconductor.org/biocLite.R") 
+# biocLite(c("GO.db", "preprocessCore", "impute")) 
+#
+# if (!requireNamespace("BiocManager", quietly = TRUE))
+#     install.packages("BiocManager")
+# BiocManager::install("impute")
+
+##########################################################
+# Load the WGCNA package
+library(WGCNA)
+
+
+
+#=====================================================================================
+#
+#  Code chunk 1
+#
+#=====================================================================================
+
+
+# Display the current working directory
+getwd();
+
+# If necessary, change the path below to the directory where the data files are stored. 
+# "." means current directory. On Windows use a forward slash / instead of the usual \.
+
+workingDir = choose.dir() # "D:/WorkRecord/Companies/Biogen/201904/AlexDelbridge/WGCNA/"
+
+setwd(workingDir); 
+
+plot.dir <- "/Plots"
+dir.create(file.path(workingDir, plot.dir), showWarnings = TRUE)
+
+
+# Load the WGCNA package
+library(WGCNA);
+
+# The following setting is important, do not omit.
+options(stringsAsFactors = FALSE);
+
+
+#Read in the count data set
+count.data = dat
+
+# read.table("timecourse_log2counts.txt", header = TRUE, row.names = 1, sep = "\t");
+
+# Take a quick look at what is in the data set:
+print( dim(count.data) )
+print( names(count.data) );
+
+
+#=====================================================================================
+#
+#  Code chunk 2
+#
+#=====================================================================================
+
+# in the biogen original datasheets, the counts are combined with meta info
+# in OmicData objects, counts are independent to design table
+# so, we do not need to remove extra columns from count table, just t() it;
+
+
+datExpr.count <- as.data.frame( t(count.data) )
+
+print( datExpr.count[1:5, 1:5] )
+
+#=====================================================================================
+#
+#  Code chunk 3
+#
+#=====================================================================================
+
+
+gsg.count <- goodSamplesGenes( datExpr.count, verbose = 3 )
+gsg.count$allOK
+
+#=====================================================================================
+#
+#  Code chunk 4
+#
+#=====================================================================================
+
+
+if (!gsg.count$allOK)
+{
+  # Optionally, print the gene and sample names that were removed:
+  if (sum(!gsg.count$goodGenes)>0) 
+    printFlush(paste("Removing genes:", paste(names(datExpr.count)[!gsg.count$goodGenes], collapse = ", ")));
+  if (sum(!gsg.count$goodSamples)>0) 
+    printFlush(paste("Removing samples:", paste(rownames(datExpr.count)[!gsg.count$goodSamples], collapse = ", ")));
+  # Remove the offending genes and samples from the data:
+  datExpr.count = datExpr.count[gsg.count$goodSamples, gsg.count$goodGenes]
+}
+
+
+
+#=====================================================================================
+#
+#  Code chunk 5
+#
+#=====================================================================================
+
+
+sampleTree = hclust(dist(datExpr.count), method = "average");
+# Plot the sample tree: Open a graphic output window of size 12 by 9 inches
+# The user should change the dimensions if the window is too large or too small.
+
+sizeGrWindow(12,9)
+
+pdf(file = "Plots/sampleClustering.pdf", width = 12, height = 9);
+
+par(cex = 0.6);
+par(mar = c(0,4,2,0))
+plot(sampleTree, main = "Sample clustering to detect outliers", sub="", xlab="", cex.lab = 1.5, 
+     cex.axis = 1.5, cex.main = 2)
+
+dev.off()
+
+#####################################################################
+## 
+sampleTree.count = hclust(dist(datExpr.count), method = "average");
+# Plot the sample tree: Open a graphic output window of size 12 by 9 inches
+# The user should change the dimensions if the window is too large or too small.
+
+sizeGrWindow(12,9)
+
+pdf(file = "Plots/sampleClustering2.pdf", width = 12, height = 9);
+par(cex = 0.6);
+par(mar = c(0,4,2,0))
+plot(sampleTree.count, main = "Sample clustering to detect outliers", sub="", xlab="", cex.lab = 1.5, 
+     cex.axis = 1.5, cex.main = 2)
+
+
+
+#=====================================================================================
+#
+#  Code chunk 6
+#
+#=====================================================================================
+
+
+#######################################
+# Plot a line to show the cut
+# 
+
+abline(h = Height, col = "red");
+
+dev.off() 
+
+
+
+# Determine cluster under the line
+# by default Height = 25, minSize = 3
+
+# print( paste("height: ", str(Height), "minSize: ", ClusterSize) )
+
+clust = cutreeStatic(sampleTree.count, cutHeight = as.numeric(Height), minSize = as.numeric(ClusterSize) )
+table(clust)
+
+# clust 1 contains the samples we want to keep.
+keepSamples = (clust==1)
+keepSamples
+
+datExpr = datExpr.count[keepSamples, ]
+nGenes = ncol(datExpr)
+nSamples = nrow(datExpr)
+
+
+
+#=====================================================================================
+#
+#  Code chunk 7
+#
+#=====================================================================================
+
+
+
+####################################################
+
+# design.data = read.table("timecourse_log2counts_Design2.txt", header = TRUE, row.names = 1, sep = "\t");
+
+design.data <- des
+
+dim(design.data)
+names(design.data)
+
+print( design.data[1:5, 1:5] )
+
+print( head(design.data) ) 
+
+
+## only keep the numerical columns in the design; 
+
+nums <- unlist(lapply(design.data, is.numeric))  
+
+design.data = design.data[ , nums]
+
+
+allTraits <- as.data.frame( design.data )
+
+dim(allTraits)
+names(allTraits)
+
+# Form a data frame analogous to expression data that will hold the clinical traits.
+rownames(datExpr)
+
+count.Samples = rownames(datExpr);
+count.Samples
+rownames( allTraits )
+
+# allTraits$ID
+
+traitRows = match(count.Samples, rownames(allTraits));
+
+datTraits = allTraits[traitRows, -1];
+dim(datTraits)
+rownames(datTraits)
+
+# rownames(datTraits) = allTraits[traitRows, 1];
+
+collectGarbage();
+
+
+#=====================================================================================
+#
+#  Code chunk 8
+#
+#=====================================================================================
+
+
+# Re-cluster samples
+sampleTree2 = hclust(dist(datExpr), method = "average")
+
+head(datTraits)
+datTraits$RIN <- NULL
+# Convert traits to a color representation: white means low, red means high, grey means missing entry
+traitColors = numbers2colors( datTraits, signed = FALSE);
+
+# Plot the sample dendrogram and the colors underneath.
+
+
+sizeGrWindow(12,9)
+
+pdf(file = "Plots/sampleClusteringDendrogram.pdf", width = 12, height = 9);
+
+
+plotDendroAndColors(sampleTree2, traitColors,
+                    groupLabels = names(datTraits), 
+                    main = "Sample dendrogram and trait heatmap")
+dev.off() 
+
+
+#=====================================================================================
+#
+#  Code chunk 9
+#
+#=====================================================================================
+
+
+save(datExpr, datTraits, file = "Count-01-dataInput.RData")
+
+SampleClustering.pdf          <- paste0(workingDir, "/Plots/SampleClustering.pdf")
+sampleClustering2.pdf         <- paste0(workingDir, "/Plots/SampleClustering2.pdf")
+sampleClusteringDendrogram.pdf<- paste0(workingDir, "/Plots/sampleClusteringDendrogram.pdf")
+
+#Count-dataInput.RData         <- paste0(workingDir, "/Count-01-dataInput.RData") 
+
+
+
+
+
+
+###############################################################################################
+##
+##    Automatic, one-step network construction and module detection
+##
+###############################################################################################
+
+
+#=====================================================================================
+#
+#  Code chunk 1
+#
+#=====================================================================================
+
+
+# Display the current working directory
+getwd();
+# If necessary, change the path below to the directory where the data files are stored. 
+# "." means current directory. On Windows use a forward slash / instead of the usual \.
+
+workingDir = getwd()
+setwd(workingDir); 
+
+# Load the WGCNA package
+library(WGCNA)
+
+# The following setting is important, do not omit.
+options(stringsAsFactors = FALSE);
+
+# Allow multi-threading within WGCNA. This helps speed up certain calculations.
+# At present this call is necessary for the code to work.
+# Any error here may be ignored but you may want to update WGCNA if you see one.
+# Caution: skip this line if you run RStudio or other third-party R environments. 
+# See note above.
+enableWGCNAThreads()
+
+# Load the data saved in the first part
+lnames = load(file = "Count-01-dataInput.RData");
+
+#The variable lnames contains the names of loaded variables.
+lnames
+
+
+#=====================================================================================
+#
+#  Code chunk 2
+#
+#=====================================================================================
+
+
+# Choose a set of soft-thresholding powers
+powers = c(c(1:10), seq(from = 12, to=20, by=2))
+
+# Call the network topology analysis function
+sft = pickSoftThreshold(datExpr, powerVector = powers, verbose = 5)
+
+# Plot the results:
+
+
+sizeGrWindow(9, 5)
+
+pdf(file = "Plots/Network_topology.pdf", width = 24, height = 9);
+
+par(mfrow = c(1,2));
+cex1 = 0.9;
+# Scale-free topology fit index as a function of the soft-thresholding power
+plot(sft$fitIndices[,1], -sign(sft$fitIndices[,3])*sft$fitIndices[,2],
+     xlab="Soft Threshold (power)",ylab="Scale Free Topology Model Fit,signed R^2",type="n",
+     main = paste("Scale independence"));
+
+text(sft$fitIndices[,1], -sign(sft$fitIndices[,3])*sft$fitIndices[,2],
+     labels=powers,cex=cex1,col="red");
+
+# this line corresponds to using an R^2 cut-off of h
+abline(h=0.90,col="red")
+
+# Mean connectivity as a function of the soft-thresholding power
+plot(sft$fitIndices[,1], sft$fitIndices[,5],
+     xlab="Soft Threshold (power)",ylab="Mean Connectivity", type="n",
+     main = paste("Mean connectivity"))
+
+text(sft$fitIndices[,1], sft$fitIndices[,5], labels=powers, cex=cex1,col="red")
+
+dev.off() 
+
+
+#=====================================================================================
+#
+#  Code chunk 3
+#
+#=====================================================================================
+
+
+net = blockwiseModules(datExpr, power = 6,
+                       TOMType = "unsigned", minModuleSize = 30,
+                       reassignThreshold = 0, mergeCutHeight = 0.25,
+                       numericLabels = TRUE, pamRespectsDendro = FALSE,
+                       saveTOMs = TRUE,
+                       saveTOMFileBase = "countMouseTOM", 
+                       verbose = 3)
+
+
+#=====================================================================================
+#
+#  Code chunk 4
+#
+#=====================================================================================
+
+
+# open a graphics window
+sizeGrWindow(12, 9)
+
+
+# Convert labels to colors for plotting
+mergedColors = labels2colors(net$colors)
+
+pdf(file = "Plots/Cluster_dendrogram.pdf", width = 24, height = 9);
+
+# Plot the dendrogram and the module colors underneath
+plotDendroAndColors(net$dendrograms[[1]], mergedColors[net$blockGenes[[1]]],
+                    "Module colors",
+                    dendroLabels = FALSE, hang = 0.03,
+                    addGuide = TRUE, guideHang = 0.05)
+
+dev.off()
+
+
+#=====================================================================================
+#
+#  Code chunk 5
+#
+#=====================================================================================
+
+
+moduleLabels = net$colors
+moduleColors = labels2colors(net$colors)
+MEs = net$MEs;
+geneTree = net$dendrograms[[1]];
+save(MEs, moduleLabels, moduleColors, geneTree, 
+     file = "Count-02-networkConstruction-auto.RData")
+
+
+
+
+###############################################################
+### END 
+###############################################################
