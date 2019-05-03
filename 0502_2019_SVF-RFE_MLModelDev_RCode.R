@@ -138,6 +138,25 @@ top.genes <- readLines("D:/miRNA_Prj/0414_cleanedInput/top_list.txt")
 
 clinical.data <- read.table("D:/miRNA_Prj/0414_cleanedInput/Clinical.txt", row.names = 1, header = T, sep = "\t")
 
+###############
+## in the clinical data, X704 is an extra item; 
+
+# clinical.data <- as.data.frame( t(clinical.data) )
+
+dim(clinical.data)
+head(clinical.data)
+head(count)
+colnames(count)
+
+
+rownames.ori <- rownames(clinical.data, do.NULL = T, prefix = "X")
+
+rownames.new <- paste0('X', rownames.ori)
+row.names(clinical.data) <- rownames.new
+
+clinical.data[1:5, 1:5]
+count[1:5, 1:5]
+
 ## check top 10 genes 
 top.genes[1:10] 
 length(top.genes) 
@@ -170,14 +189,28 @@ constantRow
 my_data <- as.data.frame( t(count) )
 
 dim(my_data)
+dim(clinical.data)
 ## [1] 43 49 ## 43 samples 49 genes
 
 ## for RnaSeq my_data$class <- design$sample.type
 
 ## for mRNA data: 
 my_data$class <- design$Progressed
+my_data[1:5, 1:5]
 
-summary(my_data$class)
+
+
+sort( row.names(my_data) )
+sort( row.names(clinical.data) )
+
+## remove the #X704 sample from clinical.data
+clinical.data <- clinical.data[-40, ]
+
+
+mydata.clinical <- merge(as.data.frame(my_data), as.data.frame(clinical.data), by='row.names', all=TRUE)
+
+summary(my_data_clinical$class)
+head(mydata.clinical)
 
 ## in case there are multi factors in the class columns, remove them;
 ## subset the data, only keep primiary tumor and solid normal
