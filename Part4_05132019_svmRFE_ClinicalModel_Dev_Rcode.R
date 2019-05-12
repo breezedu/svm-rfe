@@ -2,7 +2,7 @@
 
 ##############################
 ## clinical model
-## Jeff Du 05/2019
+## Jeff Du 05/13/2019
 ## 
 #############################
 
@@ -15,17 +15,32 @@
 
 library(caret)
 
-clinical.data <- read.table("C:/Users/dug/OneDrive - QIAGEN GmbH/SVM_RFE_Prj/0505_Clinical_Table.txt", 
+getwd()
+
+#########
+setwd("D:/miRNA_Prj/0507CleanedData/")
+
+clinical.data <- read.table("Count_Design.txt", 
                             header = T, row.names=1, sep="\t")
 
 
 str(clinical.data)
+
+dim(clinical.data)
+clinical.data[1:5, 1:5]
+
+clinical.data$locoregional
+
+clinical.data$Progressed
 
 ## remove results categories from the clinical table
 
 clinical.data$progtype1_systemic_2locoregional <- NULL
 clinical.data$Did_the_patient_develop_a_New_Tumor_Event <- NULL
 clinical.data$Alive_or_Dead <- NULL
+clinical.data$locoregional <- NULL
+clinical.data$TTP <- NULL
+clinical.data$New_Tumor_Event <- NULL
 
 head(clinical.data[ ,1:8])
 
@@ -41,7 +56,7 @@ head(clinical.data[ ,1:8])
 
 set.seed(123)
 
-trainRowNum <- createDataPartition(clinical.data$Progressed, p=0.75, list = F)
+trainRowNum <- createDataPartition(clinical.data$Progressed, p=0.9, list = F)
 
 train.data <- clinical.data[trainRowNum, ]
 test.data <- clinical.data[-trainRowNum, ]
@@ -131,11 +146,12 @@ train.data$class <- Y
 # test.dataPro$class <- Y_T
 
 dim(train.data)
+num_col <- dim(train.data)[2]
 
 ## ZScore ? 
-apply( train.data[, 1:60], 2, FUN=function(x){c('min' = min(x), 'max' = max(x) )})
+apply( train.data[, 1:num_col], 2, FUN=function(x){c('min' = min(x), 'max' = max(x) )})
 
-head(train.data[, 50:60])
+head(train.data[, 50:num_col])
 
 train.data$class <- as.factor(train.data$class)
 
@@ -165,7 +181,7 @@ featurePlot(x = train.data[, 1:20],
 set.seed(100)
 options(warn=-1)
 
-subsets <- c(1:43)
+subsets <- c(1:num_col)
 
 str(train.data)
 train.data$class <- as.factor(train.data$class)
@@ -212,7 +228,7 @@ model_svmLinear = train(class ~ .,
                         tuneLength = 4, 
                         metric='ROC', 
                         trControl = fitControl
-)
+                        )
 
 #############################
 ## briefly check the svmLinear results
@@ -243,7 +259,18 @@ rocobj_svmlinear <- roc(model_svmLinear$pred$obs, model_svmLinear$pred$yes, ci=T
                         print.auc=TRUE)
 
 library(corrplot)
+
 corrplot( cor(train.data[, 1:53]), method = "square", tl.cex = 0.5)
+
+## there are several constant columns, remove them
+corr.data <- train.data
+corr.data$histology_1_AD <- NULL
+corr.data$TNM_Stage.T1b <- NULL
+corr.data$TNM_Stage.T1bN0M0 <- NULL
+dim(corr.data)
+
+corrplot( cor( corr.data[, 1:54] ), method = "square", tl.cox = 0.2)
+
 x <- train.data[, 1:53]
 x$class <- y
 x$progtype1_systemic_2locoregional <- NULL
