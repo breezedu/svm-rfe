@@ -792,7 +792,7 @@ model_ada = train(class ~ .,
 ## this step took about 90 mins
 
 rocobj_ada <- roc(model_ada$pred$obs, 
-                  model_ada$pred$Yes, 
+                  model_ada$pred$yes, 
                   ci=TRUE,
                   plot=TRUE, 
                   legacy.axes=TRUE, percent=TRUE, 
@@ -814,7 +814,7 @@ confusionMatrix(reference = testData$class, data = predict_ada, mode='everything
 
 
 ### save the ROC with svmRadiacl plot to local drive
-PlotROCSaveJPG(rocobj_ada, path, "ada", "ADA" )
+PlotROCSaveJPG(rocobj_ada, path, "ada_turne2", "ADA" )
 
 
 
@@ -841,7 +841,7 @@ model_xgbDART
 ############################################################
 ## step #9.2 plot roc
 rocobj_xgbDART <- roc(model_xgbDART$pred$obs, 
-                      model_xgbDART$pred$Yes, 
+                      model_xgbDART$pred$yes, 
                       ci=TRUE,
                       plot=TRUE, 
                       legacy.axes=TRUE, percent=TRUE, 
@@ -855,7 +855,7 @@ rocobj_xgbDART <- roc(model_xgbDART$pred$obs,
 ############################################################
 ## Step #9.3: Predict on testData and Compute the confusion matrix
 predict_xgbDART <- predict(model_xgbDART, testData)
-confusionMatrix(reference = testData$class, data = predict_xgbDART, mode='everything', positive='Yes') 
+confusionMatrix(reference = testData$class, data = predict_xgbDART, mode='everything', positive='yes') 
 
 
 ### save the ROC with svmRadiacl plot to local drive
@@ -946,7 +946,7 @@ library(caretEnsemble)
 # Stacking Algorithms - Run multiple algos in one call.
 trainControl <- trainControl(method="repeatedcv", 
                              number=10, 
-                             repeats=3,
+                             repeats=5,
                              savePredictions=TRUE, 
                              classProbs=TRUE)
 
@@ -1009,7 +1009,7 @@ bwplot(results, scales=scales)
 ################################################################################
 ## Plot multi ROCs in one plot
 rocobj_models <- roc(models$rf$pred$obs, 
-                     models$rf$pred$Yes, 
+                     models$rf$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
                      legacy.axes=TRUE, percent=TRUE, 
@@ -1021,7 +1021,7 @@ rocobj_models <- roc(models$rf$pred$obs,
 )
 
 rocobj_models <- roc(models$svmRadial$pred$obs, 
-                     models$svmRadial$pred$Yes, 
+                     models$svmRadial$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
                      legacy.axes=TRUE, percent=TRUE, 
@@ -1035,7 +1035,7 @@ rocobj_models <- roc(models$svmRadial$pred$obs,
 
 
 rocobj_models <- roc(models$svmLinear$pred$obs, 
-                     models$svmLinear$pred$Yes, 
+                     models$svmLinear$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
                      legacy.axes=TRUE, percent=TRUE, 
@@ -1048,7 +1048,7 @@ rocobj_models <- roc(models$svmLinear$pred$obs,
 )
 
 rocobj_models <- roc(models$xgbDART$pred$obs, 
-                     models$xgbDART$pred$Yes, 
+                     models$xgbDART$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
                      legacy.axes=TRUE, percent=TRUE, 
@@ -1061,7 +1061,7 @@ rocobj_models <- roc(models$xgbDART$pred$obs,
 )
 
 rocobj_models <- roc(models$earth$pred$obs, 
-                     models$earth$pred$Yes, 
+                     models$earth$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
                      legacy.axes=TRUE, percent=TRUE, 
@@ -1075,7 +1075,7 @@ rocobj_models <- roc(models$earth$pred$obs,
 
 
 rocobj_models <- roc(models$knn$pred$obs, 
-                     models$knn$pred$Yes, 
+                     models$knn$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
                      legacy.axes=TRUE, percent=TRUE, 
