@@ -35,6 +35,15 @@ dat <- as.data.frame( input.data )
 des <- as.data.frame( input.design )
 ano <- as.data.frame( input.annotation )
 
+## remove non numeric columns from design table
+print( dim(des) )
+des.num <- unlist(lapply(des, is.numeric))
+des <- des[ ,des.num]
+print( dim(des) )
+
+## check the first few lines of the design table;
+print( head(des) )
+
 Height <- input.parameters[["Heightcutoff"]]
 ClusterSize <- input.parameters[["SmallClustersize"]]
 user.dir <- input.parameters[["user_dir"]]
