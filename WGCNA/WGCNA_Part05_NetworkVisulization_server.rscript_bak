@@ -1054,10 +1054,10 @@ names(brain) = "brain"
 # Add the brain to existing module eigengenes
 MET = orderMEs(cbind(MEs, brain))
 
-pdf(file = "Plots/P5_03Visualize_GeneNetwork_relation_plot.pdf", width = 10, height = 15);
+pdf(file = "Plots/P5_03Visualize_GeneNetwork_relation_plot.pdf", width = 5, height = 7.5);
 # Plot the relationships among the eigengenes and the trait
 
-sizeGrWindow(10, 15);
+sizeGrWindow(5,7.5);
 
 par(cex = 0.9)
 plotEigengeneNetworks(MET, "", marDendro = c(0,4,1,2), marHeatmap = c(3,4,1,2), cex.lab = 0.8, xLabelsAngle
@@ -1074,9 +1074,9 @@ dev.off()
 
 # Plot the dendrogram
 
-pdf(file = "Plots/P5_04Visualize_GeneNetwork_dendrogram_plot.pdf", width = 12, height = 12);
+pdf(file = "Plots/P5_04Visualize_GeneNetwork_dendrogram_plot.pdf", width = 6, height = 6);
 
-sizeGrWindow(12, 12);
+sizeGrWindow(6,6);
 # par(cex = 1.0)
 plotEigengeneNetworks(MET, "Eigengene dendrogram", marDendro = c(0,4,2,0),
                       plotHeatmaps = FALSE)
