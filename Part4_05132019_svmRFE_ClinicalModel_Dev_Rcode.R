@@ -224,26 +224,26 @@ fitControl <- trainControl(
   # savePredictions = 'final'
 ) 
 
-
+set.seed(123)
 #############################
 #### Step 4.1 choose svm_linear method
-model_svmLinear = train(class ~ ., 
+clin.model_svmLinear = train(class ~ ., 
                         data=train.data, 
                         method='svmLinear', 
-                        tuneLength = 4, 
+                        #tuneLength = 5, 
                         metric='ROC', 
                         trControl = fitControl
                         )
 
 #############################
 ## briefly check the svmLinear results
-model_svmLinear 
+clin.model_svmLinear 
 
 # model_svmLinear$pred$yes
 # model_svmLinear$pred$no
 
 
-varimp_svmLinear <- varImp(model_svmLinear)
+varimp_svmLinear <- varImp(clin.model_svmLinear)
 plot(varimp_svmLinear, main="Variable Importance with svmLinear")
 
 
@@ -255,7 +255,8 @@ plot(varimp_svmLinear, main="Variable Importance with svmLinear")
 ## selectedIndices <- model_mars2$pred
 library(pROC)
 
-rocobj_svmlinear <- roc(model_svmLinear$pred$obs, model_svmLinear$pred$yes, ci=TRUE,
+rocobj_svmlinear <- roc(clin.model_svmLinear$pred$obs, 
+                        clin.model_svmLinear$pred$yes, ci=TRUE,
                         plot=TRUE, 
                         legacy.axes=TRUE, percent=TRUE,
                         main="svmLinear with Cinical Data",
@@ -264,6 +265,52 @@ rocobj_svmlinear <- roc(model_svmLinear$pred$obs, model_svmLinear$pred$yes, ci=T
                         col="darkblue", lwd=4, 
                         print.auc=TRUE)
 
+
+
+
+#############################
+#### Step 5.1 choose svm_Radial method
+set.seed(123)
+clin.model_svmRadial = train(class ~ ., 
+                        data=train.data, 
+                        method='svmRadial', 
+                        #tuneLength = 8, 
+                        metric='ROC', 
+                        trControl = fitControl
+                        )
+
+#############################
+## briefly check the svmLinear results
+clin.model_svmRadial
+
+
+
+varimp_svmLinear <- varImp(clin.model_svmRadial)
+plot(varimp_svmLinear, main="Variable Importance with svmRadial")
+
+
+########################################################################################
+## step 4.2
+## plot roc for the training data
+## We can calculate the area under the curve...
+## Select a parameter setting
+## selectedIndices <- model_mars2$pred
+# library(pROC)
+
+rocobj_svmRadial <- roc(clin.model_svmRadial$pred$obs, 
+                        clin.model_svmRadial$pred$yes, ci=TRUE,
+                        plot=TRUE, 
+                        legacy.axes=TRUE, percent=TRUE,
+                        main="svmRadial with Cinical Data",
+                        xlab="False Positive Percentage", 
+                        ylab="True Postive Percentage", 
+                        col="darkblue", lwd=4, 
+                        print.auc=TRUE)
+
+
+
+#########################################################################################
+### clinical heatmap 
 library(corrplot)
 
 dim(train.data)
