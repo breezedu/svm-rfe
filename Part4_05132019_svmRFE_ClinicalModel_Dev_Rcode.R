@@ -33,6 +33,8 @@ clinical.data$locoregional
 
 clinical.data$Progressed
 
+summary(clinical.data$TNM_Stage)
+
 ## remove results categories from the clinical table
 
 clinical.data$progtype1_systemic_2locoregional <- NULL
@@ -41,6 +43,9 @@ clinical.data$Alive_or_Dead <- NULL
 clinical.data$locoregional <- NULL
 clinical.data$TTP <- NULL
 clinical.data$New_Tumor_Event <- NULL
+clinical.data$Time2FollowUp <- NULL
+clinical.data$Alive_Dead <- NULL
+clinical.data$TNM_Stage <- NULL
 
 head(clinical.data[ ,1:8])
 
@@ -56,7 +61,7 @@ head(clinical.data[ ,1:8])
 
 set.seed(123)
 
-trainRowNum <- createDataPartition(clinical.data$Progressed, p=0.9, list = F)
+trainRowNum <- createDataPartition(clinical.data$Progressed, p=0.6, list = F)
 
 train.data <- clinical.data[trainRowNum, ]
 test.data <- clinical.data[-trainRowNum, ]
@@ -191,7 +196,7 @@ ctrl <- rfeControl(functions = rfFuncs,
                    repeats = 5,
                    verbose = FALSE)
 
-lmProfile <- rfe(x=train.data[, 1:53], y=train.data$class,
+lmProfile <- rfe(x=train.data[, 1:num_col], y=train.data$class,
                  sizes = subsets,
                  rfeControl = ctrl)
 
@@ -233,6 +238,7 @@ model_svmLinear = train(class ~ .,
 #############################
 ## briefly check the svmLinear results
 model_svmLinear 
+
 # model_svmLinear$pred$yes
 # model_svmLinear$pred$no
 
@@ -260,16 +266,28 @@ rocobj_svmlinear <- roc(model_svmLinear$pred$obs, model_svmLinear$pred$yes, ci=T
 
 library(corrplot)
 
-corrplot( cor(train.data[, 1:53]), method = "square", tl.cex = 0.5)
+dim(train.data)
+corrplot( cor(train.data[, 1:29]), method = "square", tl.cex = 0.5)
 
-## there are several constant columns, remove them
+
+
+## there are several constant columns, remove them 
 corr.data <- train.data
-corr.data$histology_1_AD <- NULL
-corr.data$TNM_Stage.T1b <- NULL
-corr.data$TNM_Stage.T1bN0M0 <- NULL
-dim(corr.data)
 
-corrplot( cor( corr.data[, 1:54] ), method = "square", tl.cox = 0.2)
+corr.data$histology_1_AD <- NULL
+corr.data$Record_ID <- NULL
+
+summary(corr.data$class)
+corr.data$class <- ifelse(corr.data$class == "yes", "1", "0")
+
+summary(corr.data$class)
+corr.data$class <- as.numeric(corr.data$class)
+corr.data$progression <- corr.data$class
+corr.data$class <- NULL
+dim(corr.data)
+str(corr.data)
+
+corrplot( cor( corr.data[, 1:28] ), method = "square", tl.cox = 0.15)
 
 x <- train.data[, 1:53]
 x$class <- y
