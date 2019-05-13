@@ -46,6 +46,7 @@ clinical.data$New_Tumor_Event <- NULL
 clinical.data$Time2FollowUp <- NULL
 clinical.data$Alive_Dead <- NULL
 clinical.data$TNM_Stage <- NULL
+clinical.data$Record_ID <- NULL
 
 head(clinical.data[ ,1:8])
 
@@ -230,7 +231,7 @@ set.seed(123)
 clin.model_svmLinear = train(class ~ ., 
                         data=train.data, 
                         method='svmLinear', 
-                        #tuneLength = 5, 
+                        tuneLength = 5, 
                         metric='ROC', 
                         trControl = fitControl
                         )
@@ -244,7 +245,7 @@ clin.model_svmLinear
 
 
 varimp_svmLinear <- varImp(clin.model_svmLinear)
-plot(varimp_svmLinear, main="Variable Importance with svmLinear")
+plot(varimp_svmLinear, main="Clinical Variable Importance with svmLinear")
 
 
 ########################################################################################
@@ -286,7 +287,7 @@ clin.model_svmRadial
 
 
 varimp_svmLinear <- varImp(clin.model_svmRadial)
-plot(varimp_svmLinear, main="Variable Importance with svmRadial")
+plot(varimp_svmLinear, main="Clinical Variable Importance with svmRadial")
 
 
 ########################################################################################
@@ -435,4 +436,170 @@ predicted_svmRadial <- predict(model_svmRadial, test.data3)
 head(predicted_svmRadial)
 
 confusionMatrix(reference = test.data3$class, data = predicted_svmRadial, mode='everything', positive='yes')
+
+
+
+
+
+
+
+##################################################################################
+####  Section VII
+####  ensemble predictions from multiple models using caretEnsemble
+#### 
+
+library(caretEnsemble)
+
+# Stacking Algorithms - Run multiple algos in one call.
+trainControl <- trainControl(method="repeatedcv", 
+                             number=10, 
+                             repeats=5,
+                             savePredictions=TRUE, 
+                             classProbs=TRUE)
+
+algorithmList <- c('rf', 'knn', 'earth', 'xgbDART', 'svmRadial', 'svmLinear')
+
+
+################################################################################
+## Run all algorithms in the list: 
+set.seed(100)
+
+
+dim(train.data)
+clin.models <- caretList(class ~ ., 
+                    data=train.data, 
+                    trControl=trainControl, 
+                    methodList=algorithmList) 
+
+
+################################################################################
+## check resample() results
+
+clin.results <- resamples(clin.models)
+summary(clin.results)
+
+
+#    > summary(results)
+#    
+#    Call:
+#      summary.resamples(object = results)
+#    
+#    Models: rf, knn, earth, xgbDART, svmRadial, svmLinear 
+#    Number of resamples: 30 
+#    
+#    Accuracy 
+#    Min.   1st Qu.    Median      Mean 3rd Qu. Max. NA's
+#    rf        0.3333333 0.6666667 0.7500000 0.7822222  1.0000    1    0
+#    knn       0.3333333 0.6666667 0.6666667 0.7350000  0.7500    1    0
+#    earth     0.0000000 0.6666667 0.6666667 0.7100000  1.0000    1    0
+#    xgbDART   0.3333333 0.6666667 0.9000000 0.8211111  1.0000    1    0
+#    svmRadial 0.3333333 0.6666667 0.7750000 0.8072222  1.0000    1    0
+#    svmLinear 0.2500000 0.6666667 0.6666667 0.7355556  0.9375    1    0
+#    
+#    Kappa 
+#              Min. 1st Qu.    Median      Mean 3rd Qu. Max. NA's
+#    rf        -0.5     0.0 0.5000000 0.4181818   1.000    1    0
+#    knn       -0.5     0.0 0.0000000 0.2681818   0.500    1    0
+#    earth     -0.8     0.0 0.2000000 0.3515152   1.000    1    0
+#    xgbDART   -0.5     0.0 0.7727273 0.5448485   1.000    1    0
+#    svmRadial  0.0     0.4 0.5227273 0.6115152   1.000    1    0
+#    svmLinear -0.5     0.0 0.2000000 0.3245455   0.875    1    0
+
+
+################################################################################
+## Box plots to compare models
+scales <- list(x=list(relation="free"), y=list(relation="free"))
+bwplot(clin.results, scales=scales)
+
+## Save as multi_algo_Accuracy_Kappa_boxplot
+
+
+
+################################################################################
+## Plot multi ROCs in one plot
+rocobj_models <- roc(clin.models$rf$pred$obs, 
+                     clin.models$rf$pred$yes, 
+                     ci=TRUE,
+                     plot=TRUE, 
+                     legacy.axes=TRUE, percent=TRUE, 
+                     xlab="False Positive Percentage", 
+                     ylab="True Postive Percentage", 
+                     col="darkblue", lwd=4, 
+                     print.auc=TRUE,
+                     print.auc.y = 40
+)
+
+rocobj_models <- roc(clin.models$svmRadial$pred$obs, 
+                     clin.models$svmRadial$pred$yes, 
+                     ci=TRUE,
+                     plot=TRUE, 
+                     legacy.axes=TRUE, percent=TRUE, 
+                     xlab="False Positive Percentage", 
+                     ylab="True Postive Percentage", 
+                     col="green", lwd=4, 
+                     print.auc=TRUE,
+                     print.auc.y = 44,
+                     add = TRUE
+)
+
+
+rocobj_models <- roc(clin.models$svmLinear$pred$obs, 
+                     clin.models$svmLinear$pred$yes, 
+                     ci=TRUE,
+                     plot=TRUE, 
+                     legacy.axes=TRUE, percent=TRUE, 
+                     xlab="False Positive Percentage", 
+                     ylab="True Postive Percentage", 
+                     col="red", lwd=4, 
+                     print.auc=TRUE,
+                     print.auc.y = 48,
+                     add = TRUE
+)
+
+rocobj_models <- roc(clin.models$xgbDART$pred$obs, 
+                     clin.models$xgbDART$pred$yes, 
+                     ci=TRUE,
+                     plot=TRUE, 
+                     legacy.axes=TRUE, percent=TRUE, 
+                     xlab="False Positive Percentage", 
+                     ylab="True Postive Percentage", 
+                     col="black", lwd=4, 
+                     print.auc=TRUE,
+                     print.auc.y = 52,
+                     add = TRUE
+)
+
+rocobj_models <- roc(clin.models$earth$pred$obs, 
+                     clin.models$earth$pred$yes, 
+                     ci=TRUE,
+                     plot=TRUE, 
+                     legacy.axes=TRUE, percent=TRUE, 
+                     xlab="False Positive Percentage", 
+                     ylab="True Postive Percentage", 
+                     col="yellow", lwd=4, 
+                     print.auc=TRUE,
+                     print.auc.y = 56,
+                     add = TRUE
+)
+
+
+rocobj_models <- roc(clin.models$knn$pred$obs, 
+                     clin.models$knn$pred$yes, 
+                     ci=TRUE,
+                     plot=TRUE, 
+                     legacy.axes=TRUE, percent=TRUE, 
+                     xlab="False Positive Percentage", 
+                     ylab="True Postive Percentage", 
+                     col="pink", lwd=4, 
+                     print.auc=TRUE,
+                     print.auc.y = 35.1,
+                     add = TRUE
+)
+
+
+legend("bottomright", 
+       legend=c( "RandomForest", "svmRadial", "svmLinear", "xgbDART", "MARS", "knn" ), 
+       col=c( "darkblue", "green", "red", "black", "yellow", "pink" ), 
+       lwd=4
+)
 
