@@ -1107,6 +1107,45 @@ valid.models <- caretList(class ~ .,
 
 
 
+###################3
+## Plot two ROC curves together, 
+## compare ROC train and ROC validation, although this is a pretty odd comparison
+## 
+
+rocobj_models <- roc(models$svmLinear$pred$obs, 
+                     models$svmLinear$pred$yes, 
+                     ci=TRUE,
+                     plot=TRUE, 
+                     legacy.axes=TRUE, percent=TRUE, 
+                     xlab="False Positive Percentage", 
+                     ylab="True Postive Percentage", 
+                     col="pink", lwd=4, 
+                     print.auc=TRUE,
+                     print.auc.y = 35.1,
+                     add = TRUE
+)
+
+rocobj_models <- roc(valid.models$svmLinear$pred$obs, 
+                     valid.models$svmLinear$pred$yes, 
+                     ci=TRUE,
+                     plot=TRUE, 
+                     legacy.axes=TRUE, percent=TRUE, 
+                     xlab="False Positive Percentage", 
+                     ylab="True Postive Percentage", 
+                     col="pink", lwd=4, 
+                     print.auc=TRUE,
+                     print.auc.y = 35.1,
+                     add = TRUE
+)
+
+
+
+legend("bottomright", 
+       legend=c( "svm Linear Training", "svm Linear Validation" ), 
+       col=c( "darkblue", "red" ), 
+       lwd=4
+)
+
 
 
 ################################################################################
