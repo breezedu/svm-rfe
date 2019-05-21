@@ -1111,8 +1111,11 @@ valid.models <- caretList(class ~ .,
 ## Plot two ROC curves together, 
 ## compare ROC train and ROC validation, although this is a pretty odd comparison
 ## 
+plot.new()
 
-rocobj_models <- roc(models$svmLinear$pred$obs, 
+frame()
+
+rocobj_models_svmLinear <- roc(models$svmLinear$pred$obs, 
                      models$svmLinear$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
@@ -1121,11 +1124,11 @@ rocobj_models <- roc(models$svmLinear$pred$obs,
                      ylab="True Postive Percentage", 
                      col="darkblue", lwd=4, 
                      print.auc=TRUE,
-                     print.auc.y = 35.1,
-                     add = TRUE
+                     print.auc.y = 35.1
+                     #add = TRUE
 )
 
-rocobj_models <- roc(valid.models$svmLinear$pred$obs, 
+rocobj_models_svmLinearVa <- roc(valid.models$svmLinear$pred$obs, 
                      valid.models$svmLinear$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
@@ -1134,7 +1137,7 @@ rocobj_models <- roc(valid.models$svmLinear$pred$obs,
                      ylab="True Postive Percentage", 
                      col="red", lwd=4, 
                      print.auc=TRUE,
-                     print.auc.y = 35.1,
+                     print.auc.y = 25.1,
                      add = TRUE
 )
 
@@ -1142,6 +1145,203 @@ rocobj_models <- roc(valid.models$svmLinear$pred$obs,
 
 legend("bottomright", 
        legend=c( "svm Linear Training", "svm Linear Validation" ), 
+       col=c( "darkblue", "red" ), 
+       lwd=4
+)
+
+
+
+
+frame()
+
+rocobj_models_svmRadial <- roc(models$svmRadial$pred$obs, 
+                               models$svmRadial$pred$yes, 
+                               ci=TRUE,
+                               plot=TRUE, 
+                               legacy.axes=TRUE, percent=TRUE, 
+                               xlab="False Positive Percentage", 
+                               ylab="True Postive Percentage", 
+                               col="darkblue", lwd=4, 
+                               print.auc=TRUE,
+                               print.auc.y = 35.1
+                               #add = TRUE
+)
+
+rocobj_models_svmLinearVa <- roc(valid.models$svmRadial$pred$obs, 
+                                 valid.models$svmRadial$pred$yes, 
+                                 ci=TRUE,
+                                 plot=TRUE, 
+                                 legacy.axes=TRUE, percent=TRUE, 
+                                 xlab="False Positive Percentage", 
+                                 ylab="True Postive Percentage", 
+                                 col="red", lwd=4, 
+                                 print.auc=TRUE,
+                                 print.auc.y = 25.1,
+                                 add = TRUE
+)
+
+
+
+legend("bottomright", 
+       legend=c( "svm Radial Training", "svm Radial Validation" ), 
+       col=c( "darkblue", "red" ), 
+       lwd=4
+)
+
+
+
+
+
+frame()
+
+rocobj_models_svmLinear <- roc(models$rf$pred$obs, 
+                               models$rf$pred$yes, 
+                               ci=TRUE,
+                               plot=TRUE, 
+                               legacy.axes=TRUE, percent=TRUE, 
+                               xlab="False Positive Percentage", 
+                               ylab="True Postive Percentage", 
+                               col="darkblue", lwd=4, 
+                               print.auc=TRUE,
+                               print.auc.y = 35.1
+                               #add = TRUE
+)
+
+rocobj_models_svmLinearVa <- roc(valid.models$rf$pred$obs, 
+                                 valid.models$rf$pred$yes, 
+                                 ci=TRUE,
+                                 plot=TRUE, 
+                                 legacy.axes=TRUE, percent=TRUE, 
+                                 xlab="False Positive Percentage", 
+                                 ylab="True Postive Percentage", 
+                                 col="red", lwd=4, 
+                                 print.auc=TRUE,
+                                 print.auc.y = 25.1,
+                                 add = TRUE
+)
+
+
+
+legend("bottomright", 
+       legend=c( "Random Forest Training", "Random Forest Validation" ), 
+       col=c( "darkblue", "red" ), 
+       lwd=4
+)
+
+
+
+
+
+### KNN
+frame()
+
+rocobj_models_ <- roc(models$knn$pred$obs, 
+                               models$knn$pred$yes, 
+                               ci=TRUE,
+                               plot=TRUE, 
+                               legacy.axes=TRUE, percent=TRUE, 
+                               xlab="False Positive Percentage", 
+                               ylab="True Postive Percentage", 
+                               col="darkblue", lwd=4, 
+                               print.auc=TRUE,
+                               print.auc.y = 35.1
+                               #add = TRUE
+)
+
+rocobj_models_knn <- roc(valid.models$knn$pred$obs, 
+                                 valid.models$knn$pred$yes, 
+                                 ci=TRUE,
+                                 plot=TRUE, 
+                                 legacy.axes=TRUE, percent=TRUE, 
+                                 xlab="False Positive Percentage", 
+                                 ylab="True Postive Percentage", 
+                                 col="red", lwd=4, 
+                                 print.auc=TRUE,
+                                 print.auc.y = 25.1,
+                                 add = TRUE
+)
+
+
+
+legend("bottomright", 
+       legend=c( "KNN Training", "KNN Validation" ), 
+       col=c( "darkblue", "red" ), 
+       lwd=4
+)
+
+
+
+### xgbDART
+frame()
+
+rocobj_models_svmLinear <- roc(models$xgbDART$pred$obs, 
+                               models$xgbDART$pred$yes, 
+                               ci=TRUE,
+                               plot=TRUE, 
+                               legacy.axes=TRUE, percent=TRUE, 
+                               xlab="False Positive Percentage", 
+                               ylab="True Postive Percentage", 
+                               col="darkblue", lwd=4, 
+                               print.auc=TRUE,
+                               print.auc.y = 35.1
+                               #add = TRUE
+)
+
+rocobj_models_svmLinearVa <- roc(valid.models$xgbDART$pred$obs, 
+                                 valid.models$xgbDART$pred$yes, 
+                                 ci=TRUE,
+                                 plot=TRUE, 
+                                 legacy.axes=TRUE, percent=TRUE, 
+                                 xlab="False Positive Percentage", 
+                                 ylab="True Postive Percentage", 
+                                 col="red", lwd=4, 
+                                 print.auc=TRUE,
+                                 print.auc.y = 25.1,
+                                 add = TRUE
+)
+
+
+
+legend("bottomright", 
+       legend=c( "xgbDART Training", "xgbDART Validation" ), 
+       col=c( "darkblue", "red" ), 
+       lwd=4
+)
+
+
+## MARS
+frame()
+
+rocobj_models_mars <- roc(models$earth$pred$obs, 
+                               models$earth$pred$yes, 
+                               ci=TRUE,
+                               plot=TRUE, 
+                               legacy.axes=TRUE, percent=TRUE, 
+                               xlab="False Positive Percentage", 
+                               ylab="True Postive Percentage", 
+                               col="darkblue", lwd=4, 
+                               print.auc=TRUE,
+                               print.auc.y = 35.1
+                               #add = TRUE
+)
+
+rocobj_models_svmLinearVa <- roc(valid.models$earth$pred$obs, 
+                                 valid.models$earth$pred$yes, 
+                                 ci=TRUE,
+                                 plot=TRUE, 
+                                 legacy.axes=TRUE, percent=TRUE, 
+                                 xlab="False Positive Percentage", 
+                                 ylab="True Postive Percentage", 
+                                 col="red", lwd=4, 
+                                 print.auc=TRUE,
+                                 print.auc.y = 25.1,
+                                 add = TRUE
+)
+
+
+
+legend("bottomright", 
+       legend=c( "MARS Training", "MARS Validation" ), 
        col=c( "darkblue", "red" ), 
        lwd=4
 )
