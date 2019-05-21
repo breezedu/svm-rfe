@@ -466,6 +466,24 @@ clin.models <- caretList(class ~ .,
                     methodList=algorithmList) 
 
 
+
+
+dim(test.data)
+dim(train.data)
+
+clin.models.valid <- caretList(class ~ ., 
+                         data=test.data, 
+                         trControl=trainControl, 
+                         methodList=algorithmList) 
+
+
+#################################
+
+## Plot combination ROCs
+
+
+
+
 ################################################################################
 ## check resample() results
 
@@ -598,18 +616,3 @@ legend("bottomright",
 )
 
 
-
-
-
-dim(test.data)
-dim(train.data)
-
-clin.models.valid <- caretList(class ~ ., 
-                         data=test.data, 
-                         trControl=trainControl, 
-                         methodList=algorithmList) 
-
-
-#################################
-
-## Plot combination ROCs
