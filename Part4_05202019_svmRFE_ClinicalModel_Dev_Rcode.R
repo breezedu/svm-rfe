@@ -541,6 +541,32 @@ rocobj_models <- roc(clin.models$rf$pred$obs,
                      print.auc.y = 40
 )
 
+rocobj_models <- roc(clin.models.valid$rf$pred$obs, 
+                     clin.models.valid$rf$pred$yes, 
+                     ci=TRUE,
+                     plot=TRUE, 
+                     legacy.axes=TRUE, percent=TRUE, 
+                     xlab="False Positive Percentage", 
+                     ylab="True Postive Percentage", 
+                     col="red", lwd=4, 
+                     print.auc=TRUE,
+                     print.auc.y = 30,
+                     add = TRUE
+)
+
+
+
+
+legend("bottomright", 
+       legend=c( "Random Forest Training", "Random Forest Validation" ), 
+       col=c( "darkblue", "red" ), 
+       lwd=4
+)
+
+
+### 
+
+
 rocobj_models <- roc(clin.models$svmRadial$pred$obs, 
                      clin.models$svmRadial$pred$yes, 
                      ci=TRUE,
@@ -553,6 +579,46 @@ rocobj_models <- roc(clin.models$svmRadial$pred$obs,
                      print.auc.y = 44,
                      add = TRUE
 )
+
+
+################################################################################
+## Plot multi ROCs in one plot
+rocobj_models <- roc(clin.models$svmRadial$pred$obs, 
+                     clin.models$svmRadial$pred$yes, 
+                     ci=TRUE,
+                     plot=TRUE, 
+                     legacy.axes=TRUE, percent=TRUE, 
+                     xlab="False Positive Percentage", 
+                     ylab="True Postive Percentage", 
+                     col="darkblue", lwd=4, 
+                     print.auc=TRUE,
+                     print.auc.y = 40
+)
+
+rocobj_models <- roc(clin.models.valid$svmRadial$pred$obs, 
+                     clin.models.valid$svmRadial$pred$yes, 
+                     ci=TRUE,
+                     plot=TRUE, 
+                     legacy.axes=TRUE, percent=TRUE, 
+                     xlab="False Positive Percentage", 
+                     ylab="True Postive Percentage", 
+                     col="red", lwd=4, 
+                     print.auc=TRUE,
+                     print.auc.y = 30,
+                     add = TRUE
+)
+
+
+
+
+legend("bottomright", 
+       legend=c( "svmRadial Training Set", "svmRadial Validation" ), 
+       col=c( "darkblue", "red" ), 
+       lwd=4
+)
+
+
+#######################
 
 
 rocobj_models <- roc(clin.models$svmLinear$pred$obs, 
@@ -568,6 +634,45 @@ rocobj_models <- roc(clin.models$svmLinear$pred$obs,
                      add = TRUE
 )
 
+
+## Plot multi ROCs in one plot
+rocobj_models <- roc(clin.models$svmLinear$pred$obs, 
+                     clin.models$svmLinear$pred$yes, 
+                     ci=TRUE,
+                     plot=TRUE, 
+                     legacy.axes=TRUE, percent=TRUE, 
+                     xlab="False Positive Percentage", 
+                     ylab="True Postive Percentage", 
+                     col="darkblue", lwd=4, 
+                     print.auc=TRUE,
+                     print.auc.y = 40
+)
+
+rocobj_models <- roc(clin.models.valid$svmLinear$pred$obs, 
+                     clin.models.valid$svmLinear$pred$yes, 
+                     ci=TRUE,
+                     plot=TRUE, 
+                     legacy.axes=TRUE, percent=TRUE, 
+                     xlab="False Positive Percentage", 
+                     ylab="True Postive Percentage", 
+                     col="red", lwd=4, 
+                     print.auc=TRUE,
+                     print.auc.y = 30,
+                     add = TRUE
+)
+
+
+
+
+legend("bottomright", 
+       legend=c( "svmLinear Training Set", "svmLinear Validation" ), 
+       col=c( "darkblue", "red" ), 
+       lwd=4
+)
+
+#######################################################
+
+
 rocobj_models <- roc(clin.models$xgbDART$pred$obs, 
                      clin.models$xgbDART$pred$yes, 
                      ci=TRUE,
@@ -581,6 +686,46 @@ rocobj_models <- roc(clin.models$xgbDART$pred$obs,
                      add = TRUE
 )
 
+
+## Plot multi ROCs in one plot
+rocobj_models <- roc(clin.models$xgbDART$pred$obs, 
+                     clin.models$xgbDART$pred$yes, 
+                     ci=TRUE,
+                     plot=TRUE, 
+                     legacy.axes=TRUE, percent=TRUE, 
+                     xlab="False Positive Percentage", 
+                     ylab="True Postive Percentage", 
+                     col="darkblue", lwd=4, 
+                     print.auc=TRUE,
+                     print.auc.y = 40
+)
+
+rocobj_models <- roc(clin.models.valid$xgbDART$pred$obs, 
+                     clin.models.valid$xgbDART$pred$yes, 
+                     ci=TRUE,
+                     plot=TRUE, 
+                     legacy.axes=TRUE, percent=TRUE, 
+                     xlab="False Positive Percentage", 
+                     ylab="True Postive Percentage", 
+                     col="red", lwd=4, 
+                     print.auc=TRUE,
+                     print.auc.y = 30,
+                     add = TRUE
+)
+
+
+
+
+legend("bottomright", 
+       legend=c( "xgbDART Training Set", "xgbDART Validation Set" ), 
+       col=c( "darkblue", "red" ), 
+       lwd=4
+)
+
+
+
+
+####################################################
 rocobj_models <- roc(clin.models$earth$pred$obs, 
                      clin.models$earth$pred$yes, 
                      ci=TRUE,
@@ -594,7 +739,44 @@ rocobj_models <- roc(clin.models$earth$pred$obs,
                      add = TRUE
 )
 
+## Plot multi ROCs in one plot
+rocobj_models <- roc(clin.models$earth$pred$obs, 
+                     clin.models$earth$pred$yes, 
+                     ci=TRUE,
+                     plot=TRUE, 
+                     legacy.axes=TRUE, percent=TRUE, 
+                     xlab="False Positive Percentage", 
+                     ylab="True Postive Percentage", 
+                     col="darkblue", lwd=4, 
+                     print.auc=TRUE,
+                     print.auc.y = 40
+)
 
+rocobj_models <- roc(clin.models.valid$earth$pred$obs, 
+                     clin.models.valid$earth$pred$yes, 
+                     ci=TRUE,
+                     plot=TRUE, 
+                     legacy.axes=TRUE, percent=TRUE, 
+                     xlab="False Positive Percentage", 
+                     ylab="True Postive Percentage", 
+                     col="red", lwd=4, 
+                     print.auc=TRUE,
+                     print.auc.y = 30,
+                     add = TRUE
+)
+
+
+
+
+legend("bottomright", 
+       legend=c( "MARS Training Set", "MARS Validation" ), 
+       col=c( "darkblue", "red" ), 
+       lwd=4
+)
+
+
+
+##############################################################
 rocobj_models <- roc(clin.models$knn$pred$obs, 
                      clin.models$knn$pred$yes, 
                      ci=TRUE,
@@ -608,7 +790,45 @@ rocobj_models <- roc(clin.models$knn$pred$obs,
                      add = TRUE
 )
 
+###
+## Plot multi ROCs in one plot
+rocobj_models <- roc(clin.models$knn$pred$obs, 
+                     clin.models$knn$pred$yes, 
+                     ci=TRUE,
+                     plot=TRUE, 
+                     legacy.axes=TRUE, percent=TRUE, 
+                     xlab="False Positive Percentage", 
+                     ylab="True Postive Percentage", 
+                     col="darkblue", lwd=4, 
+                     print.auc=TRUE,
+                     print.auc.y = 40
+)
 
+rocobj_models <- roc(clin.models.valid$knn$pred$obs, 
+                     clin.models.valid$knn$pred$yes, 
+                     ci=TRUE,
+                     plot=TRUE, 
+                     legacy.axes=TRUE, percent=TRUE, 
+                     xlab="False Positive Percentage", 
+                     ylab="True Postive Percentage", 
+                     col="red", lwd=4, 
+                     print.auc=TRUE,
+                     print.auc.y = 30,
+                     add = TRUE
+)
+
+
+
+
+legend("bottomright", 
+       legend=c( "KNN Training Set", "KNN Validation Set" ), 
+       col=c( "darkblue", "red" ), 
+       lwd=4
+)
+
+
+
+############################################################################################
 legend("bottomright", 
        legend=c( "RandomForest", "svmRadial", "svmLinear", "xgbDART", "MARS", "knn" ), 
        col=c( "darkblue", "green", "red", "black", "yellow", "pink" ), 
@@ -616,3 +836,4 @@ legend("bottomright",
 )
 
 
+### END
