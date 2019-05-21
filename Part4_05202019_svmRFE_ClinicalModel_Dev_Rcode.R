@@ -18,9 +18,9 @@ library(caret)
 getwd()
 
 #########
-setwd("D:/miRNA_Prj/0507CleanedData/")
+setwd("D:/miRNA_Prj/0520_plot2RocAuc/")
 
-clinical.data <- read.table("Count_Design.txt", 
+clinical.data <- read.table("Clinical_Data.txt", 
                             header = T, row.names=1, sep="\t")
 
 
@@ -29,27 +29,11 @@ str(clinical.data)
 dim(clinical.data)
 clinical.data[1:5, 1:5]
 
-clinical.data$locoregional
+# clinical.data$locoregional <- NULL 
 
 clinical.data$Progressed
 
-summary(clinical.data$TNM_Stage)
-
-## remove results categories from the clinical table
-
-clinical.data$progtype1_systemic_2locoregional <- NULL
-clinical.data$Did_the_patient_develop_a_New_Tumor_Event <- NULL
-clinical.data$Alive_or_Dead <- NULL
-clinical.data$locoregional <- NULL
-clinical.data$TTP <- NULL
-clinical.data$New_Tumor_Event <- NULL
-clinical.data$Time2FollowUp <- NULL
-clinical.data$Alive_Dead <- NULL
-clinical.data$TNM_Stage <- NULL
-clinical.data$Record_ID <- NULL
-
-head(clinical.data[ ,1:8])
-
+summary(clinical.data$AliveOrDead)
 
 
 
@@ -76,18 +60,24 @@ dim(x)
 dim(train.data)
 length(y)
 
+x_t <- test.data 
 y_t <- test.data$Progressed
+x_t$Progressed <- NULL 
 
 ##############################################
 ## 
 ## naive visulization of features in the training data
 ##
 ##############################################
+dim(train.data)
 
 library(skimr)
 skim.train <- skim_to_wide(train.data)
-skim.train[1:20, c(1:5, 15:16)]
+skim.train[1:16, c(1:13)]
 
+skim.test <- skim_to_wide(test.data)
+skim.test[1:16, c(1:13)]
+dim(test.data)
 ## good, there's no missing data
 
 
@@ -101,14 +91,14 @@ skim.train[1:20, c(1:5, 15:16)]
 
 ##
 ## One-Hot Encoding to create dummy variables by converting a categorical variable to as many binary variables
-dummie.model <- dummyVars(Progressed ~ ., data=train.data)
-
-train.dataDum <- predict(dummie.model, newdata = train.data)
-train.data <- data.frame(train.dataDum)
+# dummie.model <- dummyVars(Progressed ~ ., data=train.data)
+# 
+# train.dataDum <- predict(dummie.model, newdata = train.data)
+train.data <- data.frame(train.data)
+test.data <- data.frame(test.data)
 
 ## cound not use train.data <- as.data.frame(train.dataDum)
-
-test.dataDum <- predict(dummie.model, newdata = test.data)
+## test.dataDum <- predict(dummie.model, newdata = test.data)
 
 ################################
 ## remove constant columns
@@ -137,6 +127,7 @@ test.dataDum <- as.data.frame(test.dataDum)
 preProcess.model <- preProcess( train.data, method = 'range' )
 
 train.data <- predict(preProcess.model, newdata = train.data)
+test.data <- predict(preProcess.model, newdata = test.data)
 
 # preProcess.modelT <- preProcess( test.dataDum, method = 'range')
 # test.dataPro <- predict(preProcess.modelT, newdata = test.dataDum)
@@ -149,19 +140,26 @@ Y
 Y_T <- ifelse(y_t==1, "yes", "no")
 
 train.data$class <- Y
-# test.dataPro$class <- Y_T
 
+test.data$class <- Y_T
+
+dim(test.data)
 dim(train.data)
 num_col <- dim(train.data)[2]
+num_col
+
+t.col <- dim(test.data)[2]
 
 ## ZScore ? 
 apply( train.data[, 1:num_col], 2, FUN=function(x){c('min' = min(x), 'max' = max(x) )})
+apply(  test.data[,   1:t.col], 2, FUN=function(x){c('min' = min(x), 'max' = max(x) )})
 
-head(train.data[, 50:num_col])
+head(train.data[, num_col-5:num_col])
 
 train.data$class <- as.factor(train.data$class)
+test.data$class <- as.factor((test.data$class))
 
-featurePlot( x = train.data[ , 1:20],
+featurePlot( x = train.data[ , 1:num_col-1],
              y = train.data$class,
              plot = 'box',
              strip = strip.custom(par.strip.text = list( cex = 0.7)),
@@ -171,7 +169,7 @@ featurePlot( x = train.data[ , 1:20],
 )
 
 
-featurePlot(x = train.data[, 1:20], 
+featurePlot(x = train.data[, 1:num_col-1], 
             y = train.data$class, 
             plot = "density",
             strip=strip.custom(par.strip.text=list(cex=.7)),
@@ -225,9 +223,15 @@ fitControl <- trainControl(
   # savePredictions = 'final'
 ) 
 
+
+train.data$Time2Progression <- NULL
+train.data$Progressed <- NULL
+
 set.seed(123)
 #############################
 #### Step 4.1 choose svm_linear method
+
+
 clin.model_svmLinear = train(class ~ ., 
                         data=train.data, 
                         method='svmLinear', 
@@ -258,6 +262,33 @@ library(pROC)
 
 rocobj_svmlinear <- roc(clin.model_svmLinear$pred$obs, 
                         clin.model_svmLinear$pred$yes, ci=TRUE,
+                        plot=TRUE, 
+                        legacy.axes=TRUE, percent=TRUE,
+                        main="svmLinear with Cinical Data",
+                        xlab="False Positive Percentage", 
+                        ylab="True Postive Percentage", 
+                        col="darkblue", lwd=4, 
+                        print.auc=TRUE)
+
+
+dim(train.data)
+dim(test.data)
+
+test.data$Progressed <- NULL
+test.data$Time2Progression <- NULL
+
+### build testing model on validation set
+clin.model_svmLinear.valid = train(class ~ ., 
+                             data=test.data, 
+                             method='svmLinear', 
+                             tuneLength = 5, 
+                             metric='ROC', 
+                             trControl = fitControl
+)
+
+
+rocobj_svmlinear.valid <- roc(clin.model_svmLinear.valid$pred$obs, 
+                        clin.model_svmLinear.valid$pred$yes, ci=TRUE,
                         plot=TRUE, 
                         legacy.axes=TRUE, percent=TRUE,
                         main="svmLinear with Cinical Data",
@@ -315,66 +346,13 @@ rocobj_svmRadial <- roc(clin.model_svmRadial$pred$obs,
 library(corrplot)
 
 dim(train.data)
-corrplot( cor(train.data[, 1:29]), method = "square", tl.cex = 0.5)
+corrplot( cor(train.data[, 1:14]), method = "square", tl.cex = 0.8)
+
+corrplot( cor(clinical.data), method = "square", tl.cex = 0.8)
 
 
 
-## there are several constant columns, remove them 
-corr.data <- train.data
-
-corr.data$histology_1_AD <- NULL
-corr.data$Record_ID <- NULL
-
-summary(corr.data$class)
-corr.data$class <- ifelse(corr.data$class == "yes", "1", "0")
-
-summary(corr.data$class)
-corr.data$class <- as.numeric(corr.data$class)
-corr.data$progression <- corr.data$class
-corr.data$class <- NULL
-dim(corr.data)
-str(corr.data)
-
-corrplot( cor( corr.data[, 1:28] ), method = "square", tl.cox = 0.15)
-
-x <- train.data[, 1:53]
-x$class <- y
-x$progtype1_systemic_2locoregional <- NULL
-x$TTP <- NULL
-x$Did_the_patient_develop_a_New_Tumor_Event.Yes <- NULL
-
-corrplot( cor(x), method = "square", tl.cex = 0.35)
-colnames(x)
-
-
-dim(train.data)
-dim(test.data)
-test.data2 <- predict(dummie.model, test.data)
-
-test.data2 <- data.frame(test.data2)
-str(test.data2)
-str(train.dataDum)
-
-# train.dataDum <- data.frame(train.dataDum)
-# predict(preProcess.model, train.dataDum)
-# test.data2$`Race.Black African American` <- NULL
-# test.dataDum$`Race.Black African American` <- NULL
-test.data3 <- predict(preProcess.model, test.data2)
-test.data3$Race.Unknown.Refused <- rep( 0, nrow(test.data3))
-
-
-colnames(test.data3)
-colnames(train.data)
-
-
-# str(train.data)
-# str(test.data3)
-test.data3$class <- Y_T
-summary(test.data3$class)
-test.data3$class <- as.factor(test.data3$class)
-summary(test.data3$class)
-
-predicted2 <- predict(model_svmLinear, test.data3) 
+predicted2 <- predict(clin.model_svmLinear, test.data3) 
 
 head(predicted2)
 
@@ -391,19 +369,11 @@ confusionMatrix(reference = test.data3$class, data = predicted2, mode='everythin
 
 
 
-###########################################
-
-dim(test.data3)
-## ZScore ? 
-apply( train.data[, 1:60], 2, FUN=function(x){c('min' = min(x), 'max' = max(x) )})
-
-head(test.data3[, 50:60])
-
 #############################
 #### Step 4.1 choose svm_linear method
 set.seed(100)
 
-model_svmRadial = train(class ~ ., 
+clin.model_svmRadial = train(class ~ ., 
                         data=train.data, 
                         method='svmRadial', 
                         tuneLength = 8, 
@@ -413,15 +383,16 @@ model_svmRadial = train(class ~ .,
 
 #############################
 ## briefly check the svmLinear results
-model_svmRadial 
+clin.model_svmRadial 
 # model_svmLinear$pred$yes
 # model_svmLinear$pred$no
 
 
-varimp_svmRadial <- varImp(model_svmRadial)
+varimp_svmRadial <- varImp(clin.model_svmRadial)
 plot(varimp_svmRadial, main="Variable Importance with svmLinear")
 
-rocobj_svmRadial <- roc(model_svmRadial$pred$obs, model_svmRadial$pred$yes, ci=TRUE,
+rocobj_svmRadial <- roc(clin.model_svmRadial$pred$obs, 
+                        clin.model_svmRadial$pred$yes, ci=TRUE,
                         plot=TRUE, 
                         legacy.axes=TRUE, percent=TRUE,
                         main="svmRadial with Cinical Data",
@@ -429,6 +400,29 @@ rocobj_svmRadial <- roc(model_svmRadial$pred$obs, model_svmRadial$pred$yes, ci=T
                         ylab="True Postive Percentage", 
                         col="darkblue", lwd=4, 
                         print.auc=TRUE)
+
+test.data3$Time2Progression <- NULL
+model_svmRadial.valid = train(class ~ ., 
+                        data=test.data3, 
+                        method='svmRadial', 
+                        tuneLength = 8, 
+                        metric='ROC', 
+                        trControl = fitControl
+)
+
+#rocobj_svmRadial.valid
+#test.data3$Time2Progression <- NULL
+
+rocobj_svmRadial <- roc(model_svmRadial.valid$pred$obs, 
+                        model_svmRadial.valid$pred$yes, ci=TRUE,
+                        plot=TRUE, 
+                        legacy.axes=TRUE, percent=TRUE,
+                        main="svmRadial with Cinical Data",
+                        xlab="False Positive Percentage", 
+                        ylab="True Postive Percentage", 
+                        col="darkblue", lwd=4, 
+                        print.auc=TRUE)
+
 
 
 predicted_svmRadial <- predict(model_svmRadial, test.data3) 
@@ -452,8 +446,8 @@ library(caretEnsemble)
 
 # Stacking Algorithms - Run multiple algos in one call.
 trainControl <- trainControl(method="repeatedcv", 
-                             number=10, 
-                             repeats=5,
+                             number=15, 
+                             repeats=10,
                              savePredictions=TRUE, 
                              classProbs=TRUE)
 
@@ -607,10 +601,15 @@ legend("bottomright",
 
 
 
-dim(test.data3)
+dim(test.data)
 dim(train.data)
 
-clin.models <- caretList(class ~ ., 
-                         data=test.data3, 
+clin.models.valid <- caretList(class ~ ., 
+                         data=test.data, 
                          trControl=trainControl, 
                          methodList=algorithmList) 
+
+
+#################################
+
+## Plot combination ROCs
