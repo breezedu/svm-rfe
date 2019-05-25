@@ -76,10 +76,10 @@ dim(train.data)
 
 library(skimr)
 skim.train <- skim_to_wide(train.data)
-skim.train[1:16, c(1:13)]
+skim.train[1:13, c(1:13)]
 
 skim.test <- skim_to_wide(test.data)
-skim.test[1:16, c(1:13)]
+skim.test[1:13, c(1:13)]
 dim(test.data)
 ## good, there's no missing data
 
@@ -123,9 +123,9 @@ test.data <- data.frame(test.data)
 str(train.data)
 dim(train.data)
 
-str(test.dataDum)
-dim(test.dataDum)
-test.dataDum <- as.data.frame(test.dataDum)
+#str(test.dataDum)
+#dim(test.dataDum)
+#test.dataDum <- as.data.frame(test.dataDum)
 
 preProcess.model <- preProcess( train.data, method = 'range' )
 
@@ -227,7 +227,7 @@ fitControl <- trainControl(
 ) 
 
 
-train.data$Time2Progression <- NULL
+
 train.data$Progressed <- NULL
 
 set.seed(123)
@@ -278,7 +278,7 @@ dim(train.data)
 dim(test.data)
 
 test.data$Progressed <- NULL
-test.data$Time2Progression <- NULL
+#test.data$Time2Progression <- NULL
 
 ### build testing model on validation set
 clin.model_svmLinear.valid = train(class ~ ., 
@@ -349,17 +349,17 @@ rocobj_svmRadial <- roc(clin.model_svmRadial$pred$obs,
 library(corrplot)
 
 dim(train.data)
-corrplot( cor(train.data[, 1:14]), method = "square", tl.cex = 0.8)
+corrplot( cor(train.data[, 1:12]), method = "square", tl.cex = 0.8)
 
 corrplot( cor(clinical.data), method = "square", tl.cex = 0.8)
 
 
 
-predicted2 <- predict(clin.model_svmLinear, test.data3) 
+predicted2 <- predict(clin.model_svmLinear, test.data) 
 
 head(predicted2)
 
-confusionMatrix(reference = test.data3$class, data = predicted2, mode='everything', positive='yes')
+confusionMatrix(reference = test.data$class, data = predicted2, mode='everything', positive='yes')
 
 
 
@@ -406,7 +406,7 @@ rocobj_svmRadial <- roc(clin.model_svmRadial$pred$obs,
 
 test.data3$Time2Progression <- NULL
 model_svmRadial.valid = train(class ~ ., 
-                        data=test.data3, 
+                        data=test.data, 
                         method='svmRadial', 
                         tuneLength = 8, 
                         metric='ROC', 
@@ -428,11 +428,11 @@ rocobj_svmRadial <- roc(model_svmRadial.valid$pred$obs,
 
 
 
-predicted_svmRadial <- predict(model_svmRadial, test.data3) 
+predicted_svmRadial <- predict(model_svmRadial.valid, test.data) 
 
 head(predicted_svmRadial)
 
-confusionMatrix(reference = test.data3$class, data = predicted_svmRadial, mode='everything', positive='yes')
+confusionMatrix(reference = test.data$class, data = predicted_svmRadial, mode='everything', positive='yes')
 
 
 
@@ -447,13 +447,27 @@ confusionMatrix(reference = test.data3$class, data = predicted_svmRadial, mode='
 
 library(caretEnsemble)
 
+fitControl <- trainControl(
+  method = 'repeatedcv',           # k-fold cross validation
+  number = 15,                     # number of folds
+  repeats = 10,                    # number of repeats
+  savePredictions = T,             # saves predictions for optimal tuning parameter
+  classProbs = T,                  # should class probabilities be returned
+  summaryFunction=twoClassSummary  #,  # results summary function
+  # savePredictions = 'final'
+) 
+
+
+
 # Stacking Algorithms - Run multiple algos in one call.
 trainControl <- trainControl(method="repeatedcv", 
-                             number=15, 
-                             repeats=10,
+                             number=25, 
+                             repeats=20,
                              savePredictions=TRUE, 
                              classProbs=TRUE)
 
+
+algorithmList <- c('rf', 'knn', 'earth', 'svmRadial', 'svmLinear')
 algorithmList <- c('rf', 'knn', 'earth', 'xgbDART', 'svmRadial', 'svmLinear')
 
 
@@ -463,10 +477,12 @@ set.seed(100)
 
 
 dim(train.data)
-clin.models <- caretList(class ~ ., 
-                    data=train.data, 
-                    trControl=trainControl, 
-                    methodList=algorithmList) 
+clin.models <- caretList( class ~ ., 
+                          data=train.data, 
+                          metric='ROC', 
+                          trControl=trainControl, 
+                          methodList=algorithmList
+                        ) 
 
 
 
@@ -475,9 +491,11 @@ dim(test.data)
 dim(train.data)
 
 clin.models.valid <- caretList(class ~ ., 
-                         data=test.data, 
-                         trControl=trainControl, 
-                         methodList=algorithmList) 
+                               data=test.data, 
+                               metric='ROC',
+                               trControl=fitControl, 
+                               methodList=algorithmList
+                               ) 
 
 
 #################################
@@ -489,6 +507,11 @@ clin.models.valid <- caretList(class ~ .,
 
 ################################################################################
 ## check resample() results
+
+models_compare <- resamples(
+  list(clin.models$rf, clin.models$knn, clin.models$svmRadial, clin.models$svmLinear)
+  )
+summary(models_compare)
 
 clin.results <- resamples(clin.models)
 summary(clin.results)
