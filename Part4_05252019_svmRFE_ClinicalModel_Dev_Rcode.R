@@ -508,10 +508,10 @@ clin.models.valid <- caretList(class ~ .,
 ################################################################################
 ## check resample() results
 
-models_compare <- resamples(
-  list(clin.models$rf, clin.models$knn, clin.models$svmRadial, clin.models$svmLinear)
-  )
-summary(models_compare)
+# models_compare <- resamples(
+#  list(clin.models$rf, clin.models$knn, clin.models$svmRadial, clin.models$svmLinear)
+#   )
+# summary(models_compare)
 
 clin.results <- resamples(clin.models)
 summary(clin.results)
@@ -560,6 +560,7 @@ rocobj_models <- roc(clin.models$rf$pred$obs,
                      ci=TRUE,
                      plot=TRUE, 
                      legacy.axes=TRUE, percent=TRUE, 
+                     main="Random Forest Clinical ROC",
                      xlab="False Positive Percentage", 
                      ylab="True Postive Percentage", 
                      col="darkblue", lwd=4, 
@@ -602,9 +603,8 @@ rocobj_models <- roc(clin.models$svmRadial$pred$obs,
                      ylab="True Postive Percentage", 
                      col="green", lwd=4, 
                      print.auc=TRUE,
-                     print.auc.y = 44,
-                     add = TRUE
-)
+                     print.auc.y = 44
+                    )
 
 
 ################################################################################
@@ -614,6 +614,7 @@ rocobj_models <- roc(clin.models$svmRadial$pred$obs,
                      ci=TRUE,
                      plot=TRUE, 
                      legacy.axes=TRUE, percent=TRUE, 
+                     main="svmRadial Clinical ROC",
                      xlab="False Positive Percentage", 
                      ylab="True Postive Percentage", 
                      col="darkblue", lwd=4, 
@@ -656,9 +657,8 @@ rocobj_models <- roc(clin.models$svmLinear$pred$obs,
                      ylab="True Postive Percentage", 
                      col="red", lwd=4, 
                      print.auc=TRUE,
-                     print.auc.y = 48,
-                     add = TRUE
-)
+                     print.auc.y = 48
+                    )
 
 
 ## Plot multi ROCs in one plot
@@ -667,6 +667,7 @@ rocobj_models <- roc(clin.models$svmLinear$pred$obs,
                      ci=TRUE,
                      plot=TRUE, 
                      legacy.axes=TRUE, percent=TRUE, 
+                     main="svmLinear Clinical ROC",
                      xlab="False Positive Percentage", 
                      ylab="True Postive Percentage", 
                      col="darkblue", lwd=4, 
@@ -704,6 +705,7 @@ rocobj_models <- roc(clin.models$xgbDART$pred$obs,
                      ci=TRUE,
                      plot=TRUE, 
                      legacy.axes=TRUE, percent=TRUE, 
+                     main="xgbDART Clinical ROC",
                      xlab="False Positive Percentage", 
                      ylab="True Postive Percentage", 
                      col="black", lwd=4, 
@@ -719,6 +721,7 @@ rocobj_models <- roc(clin.models$xgbDART$pred$obs,
                      ci=TRUE,
                      plot=TRUE, 
                      legacy.axes=TRUE, percent=TRUE, 
+                     main="xgbDART Clinical ROC",
                      xlab="False Positive Percentage", 
                      ylab="True Postive Percentage", 
                      col="darkblue", lwd=4, 
@@ -771,6 +774,7 @@ rocobj_models <- roc(clin.models$earth$pred$obs,
                      ci=TRUE,
                      plot=TRUE, 
                      legacy.axes=TRUE, percent=TRUE, 
+                     main="MARS Clinical ROC",
                      xlab="False Positive Percentage", 
                      ylab="True Postive Percentage", 
                      col="darkblue", lwd=4, 
@@ -823,6 +827,7 @@ rocobj_models <- roc(clin.models$knn$pred$obs,
                      ci=TRUE,
                      plot=TRUE, 
                      legacy.axes=TRUE, percent=TRUE, 
+                     main="KNN Clinical ROC",
                      xlab="False Positive Percentage", 
                      ylab="True Postive Percentage", 
                      col="darkblue", lwd=4, 
