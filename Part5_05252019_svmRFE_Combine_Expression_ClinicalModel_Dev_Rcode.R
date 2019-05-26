@@ -527,14 +527,14 @@ fitControl <- trainControl(
 #### Section V, step 4
 #### Tune hyper parameters by setting tuneLength
 
-set.seed(12345)
+set.seed(100)
 
 #############################
 #### Step 4.1 choose svm_linear method
 model_svmLinear = train(class ~ ., 
                         data=trainData, 
                         method='svmLinear', 
-                        tuneLength = 20, 
+                        tuneLength = 8, 
                         metric='ROC', 
                         trControl = fitControl
                         )
@@ -547,7 +547,7 @@ model_svmLinear
 
 
 varimp_svmLinear <- varImp(model_svmLinear)
-plot(varimp_svmLinear, main="Variable Importance with svmLinear")
+plot(varimp_svmLinear, main="Variable Importance of Merged Data with svmLinear")
 
 ########################################################################################
 ## step 4.2
@@ -593,11 +593,15 @@ confusionMatrix(reference = testData$class, data = predicted2, mode='everything'
 # P-Value [Acc > NIR] : 0.1493  
 # 
 ### save the ROC with svmRadiacl plot to local drive
-path <- "C:/Users/dug/OneDrive - QIAGEN GmbH/SVM_RFE_Prj/0507CleanedData/Plots/"
-path <- paste0(getwd(), "/60vs40Plots/" )
+path <- NULL
+  
+getwd()
+  
+setwd("D:/miRNA_Prj/0525_MergedDataPlots/")
+path <- getwd()
 path
 
-PlotROCSaveJPG(rocobj_svmlinear, path, "svmLinear_tune18_train60", "svmLinear" )
+PlotROCSaveJPG(rocobj_svmlinear, path, "svmLinear_tune8_train60", "svmLinear" )
 
 
 ################################################################
@@ -624,6 +628,7 @@ model_marsG = train(class ~ .,
                     trControl = fitControl
                   )
 
+#######################################
 ## check tuned MARS model results
 model_marsG
 
