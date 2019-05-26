@@ -1019,11 +1019,11 @@ merged.models.valid <- caretList(class ~ .,
                            methodList=algorithmList
 ) 
 
-
+resamples(merged.models.valid)
 ################################################################################
 ## check resample() results
 ## 
-results <- resamples(models)
+results <- resamples(merged.models)
 summary(results)
 
 
@@ -1065,8 +1065,8 @@ bwplot(results, scales=scales)
 
 ################################################################################
 ## Plot multi ROCs in one plot
-rocobj_models <- roc(models$rf$pred$obs, 
-                     models$rf$pred$yes, 
+rocobj_models <- roc(merged.models$rf$pred$obs, 
+                     merged.models$rf$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
                      legacy.axes=TRUE, percent=TRUE, 
@@ -1077,8 +1077,8 @@ rocobj_models <- roc(models$rf$pred$obs,
                      print.auc.y = 40
 )
 
-rocobj_models <- roc(models$svmRadial$pred$obs, 
-                     models$svmRadial$pred$yes, 
+rocobj_models <- roc(merged.models$svmRadial$pred$obs, 
+                     merged.models$svmRadial$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
                      legacy.axes=TRUE, percent=TRUE, 
@@ -1091,8 +1091,8 @@ rocobj_models <- roc(models$svmRadial$pred$obs,
 )
 
 
-rocobj_models <- roc(models$svmLinear$pred$obs, 
-                     models$svmLinear$pred$yes, 
+rocobj_models <- roc(merged.models$svmLinear$pred$obs, 
+                     merged.models$svmLinear$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
                      legacy.axes=TRUE, percent=TRUE, 
@@ -1104,8 +1104,8 @@ rocobj_models <- roc(models$svmLinear$pred$obs,
                      add = TRUE
 )
 
-rocobj_models <- roc(models$xgbDART$pred$obs, 
-                     models$xgbDART$pred$yes, 
+rocobj_models <- roc(merged.models$xgbDART$pred$obs, 
+                     merged.models$xgbDART$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
                      legacy.axes=TRUE, percent=TRUE, 
@@ -1117,8 +1117,8 @@ rocobj_models <- roc(models$xgbDART$pred$obs,
                      add = TRUE
 )
 
-rocobj_models <- roc(models$earth$pred$obs, 
-                     models$earth$pred$yes, 
+rocobj_models <- roc(merged.models$earth$pred$obs, 
+                     merged.models$earth$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
                      legacy.axes=TRUE, percent=TRUE, 
@@ -1131,8 +1131,8 @@ rocobj_models <- roc(models$earth$pred$obs,
 )
 
 
-rocobj_models <- roc(models$knn$pred$obs, 
-                     models$knn$pred$yes, 
+rocobj_models <- roc(merged.models$knn$pred$obs, 
+                     merged.models$knn$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
                      legacy.axes=TRUE, percent=TRUE, 
@@ -1158,12 +1158,12 @@ legend("bottomright",
 
 ################################################################################
 ## Plot TWO ROCs in one plot
-rocobj_models <- roc(clin.models$rf$pred$obs, 
-                     clin.models$rf$pred$yes, 
+rocobj_models <- roc(merged.models$rf$pred$obs, 
+                     merged.models$rf$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
                      legacy.axes=TRUE, percent=TRUE, 
-                     main="Random Forest Clinical ROC",
+                     main="Random Forest Combined ROC",
                      xlab="False Positive Percentage", 
                      ylab="True Postive Percentage", 
                      col="darkblue", lwd=4, 
@@ -1171,8 +1171,8 @@ rocobj_models <- roc(clin.models$rf$pred$obs,
                      print.auc.y = 40
 )
 
-rocobj_models <- roc(clin.models.valid$rf$pred$obs, 
-                     clin.models.valid$rf$pred$yes, 
+rocobj_models <- roc(merged.models.valid$rf$pred$obs, 
+                     merged.models.valid$rf$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
                      legacy.axes=TRUE, percent=TRUE, 
