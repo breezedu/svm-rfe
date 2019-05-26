@@ -1461,7 +1461,9 @@ legend("bottomright",
 )
 
 
-
+## END UPDATE 0525 2019 
+## THE amazing client wanted ROC-AUCs for both training set and validation set, 
+## instead of confusion matrix;
 ############################################################################################
 
 
