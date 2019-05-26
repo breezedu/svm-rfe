@@ -554,7 +554,7 @@ bwplot(clin.results, scales=scales)
 
 
 ################################################################################
-## Plot multi ROCs in one plot
+## Plot TWO ROCs in one plot
 rocobj_models <- roc(clin.models$rf$pred$obs, 
                      clin.models$rf$pred$yes, 
                      ci=TRUE,
