@@ -670,7 +670,7 @@ model_rf = train(class ~ .,
                  method='rf', 
                  metric='ROC', 
                  #tuneGrid = gbmGrid, 
-                 tuneLength = 1, 
+                 tuneLength = 8, 
                  trControl = fitControl
                   )
 
