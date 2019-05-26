@@ -124,11 +124,16 @@ PlotROCSaveJPG <- function(roc.obj, path, file.name, ml.algo){
 ## 
 ########################################################################################
 
-#########
-setwd("D:/miRNA_Prj/0520_plot2RocAuc/")
+count <- read.table("C:/Users/dug/OneDrive - QIAGEN GmbH/SVM_RFE_Prj/0507CleanedData/Count.txt", row.names = 1, header = T, sep = "\t")
+design <- read.table("C:/Users/dug/OneDrive - QIAGEN GmbH/SVM_RFE_Prj/0507CleanedData/Count_Design.txt", row.names = 1, header = T, sep = "\t")
+top.genes <- readLines("C:/Users/dug/OneDrive - QIAGEN GmbH/SVM_RFE_Prj/0507CleanedData/Deseq2_top45rows.txt")
 
-count <- read.table("expression_count.txt", row.names = 1, header = T, sep = "\t")
-clinical.data <- read.table("Clinical_Data.txt", row.names = 1, header = T, sep = "\t")
+
+#########
+setwd("D:/miRNA_Prj/0507CleanedData/")
+
+count <- read.table("Count.txt", row.names = 1, header = T, sep = "\t")
+design <- read.table("Count_Design.txt", row.names = 1, header = T, sep = "\t")
 top.genes <- readLines("Deseq2_top45rows.txt")
 
 
@@ -142,12 +147,16 @@ length(top.genes)
 #top.genes <- readLines("D:/WorkRecord/Companies/Qiagen_Sales/201904/test_miRNA/significant_genes_DESeq2.txt")
 #top.genes <- readLines("D:/miRNA_Prj/0414_cleanedInput/top_list.txt")
 #
-
+#clinical.data <- read.table("D:/miRNA_Prj/0414_cleanedInput/Clinical.txt", row.names = 1, header = T, sep = "\t")
+#
 ###############
 ## in the clinical data, X704 is an extra item; 
 
+# clinical.data <- as.data.frame( t(clinical.data) )
+
 dim(clinical.data)
 head(clinical.data)
+
 
 head(count)
 colnames(count)
@@ -158,16 +167,9 @@ colnames(count)
 # rownames.new <- paste0('X', rownames.ori)
 # row.names(clinical.data) <- rownames.new
 
-
-#clinical.data <- as.data.frame( t(clinical.data) )
-
-
 clinical.data[1:5, 1:5]
 count[1:5, 1:5]
 
-## check top 10 genes 
-top.genes[1:10] 
-length(top.genes) 
 
 ############################################################
 ## remove rows with constant values (zeros)
@@ -199,51 +201,45 @@ my_data <- as.data.frame( t(count) )
 dim(my_data)
 dim(clinical.data)
 
-######################
+##########################################
 # > dim(my_data)
 # [1] 41 45
 # > dim(clinical.data)
 # [1] 41 13
-# > 
-## [1] 41 45 ## 41 samples 45 genes plus 16 clinical variables
-clinical.data[1:5][1:5]
+## [1] 43 49 ## 43 samples 49 genes
+
 ## for RnaSeq my_data$class <- design$sample.type
 
 ## for mRNA data: 
 
-my_data$class <- clinical.data$Progressed
-
+my_data$class <- design$Progressed
 my_data$class <- ifelse(my_data$class==1, "yes", "no")
 
 my_data[1:5, 1:5]
 
 
-## sort two dataframe by row names
+
 sort( row.names(my_data) )
 sort( row.names(clinical.data) )
 
+## remove the #X704 sample from clinical.data
+clinical.data <- clinical.data[-40, ]
 
-###############################
-## merge count data and clinical data into mydata.clinical
+
 mydata.clinical <- merge(as.data.frame(my_data), as.data.frame(clinical.data), by='row.names', all=TRUE)
 
-summary(mydata.clinical$class)
-
-mydata.clinical$class <- as.factor(mydata.clinical$class)
-
-summary(mydata.clinical$class)
-
+summary(my_data_clinical$class)
 head(mydata.clinical)
 
 ## in case there are multi factors in the class columns, remove them;
 ## subset the data, only keep primiary tumor and solid normal
-#my_data <- subset( my_data, class!='Metastatic') # my_data$class != "Metastatic", ]
-#
+my_data <- subset( my_data, class!='Metastatic') # my_data$class != "Metastatic", ]
+
 ## check factor levels left
-#summary(my_data$class) 
+summary(my_data$class) 
 
 ## drop the empty Metastatic level
-#my_data$class <- factor(my_data$class)
+my_data$class <- factor(my_data$class)
 
 
 
@@ -260,10 +256,6 @@ set.seed(1234)
 ## The limitation in this case is: dataset too small
 ## So, we split the original data into 75% training + 25% testing
 ###################################################################
-
-my_data <- data.frame(mydata.clinical)
-
-summary( my_data$class )
 
 trainRowNumbers <- createDataPartition(my_data$class, p=0.60, list=FALSE)
 
@@ -1103,6 +1095,258 @@ rocobj_models <- roc(models$knn$pred$obs,
 legend("bottomright", 
        legend=c( "rf", "svmRadial", "svmLinear", "xgbDART", "MARS", "knn" ), 
        col=c( "darkblue", "green", "red", "black", "yellow", "pink" ), 
+       lwd=4
+)
+
+
+########################################################################
+## Run all algorithms in the list: against validation dataset
+
+set.seed(100)
+
+valid.models <- caretList(class ~ ., 
+                    data=testData, 
+                    trControl=trainControl, 
+                    methodList=algorithmList) 
+
+
+
+###################3
+## Plot two ROC curves together, 
+## compare ROC train and ROC validation, although this is a pretty odd comparison
+## 
+plot.new()
+
+frame()
+
+rocobj_models_svmLinear <- roc(models$svmLinear$pred$obs, 
+                     models$svmLinear$pred$yes, 
+                     ci=TRUE,
+                     plot=TRUE, 
+                     legacy.axes=TRUE, percent=TRUE, 
+                     xlab="False Positive Percentage", 
+                     ylab="True Postive Percentage", 
+                     col="darkblue", lwd=4, 
+                     print.auc=TRUE,
+                     print.auc.y = 35.1
+                     #add = TRUE
+)
+
+rocobj_models_svmLinearVa <- roc(valid.models$svmLinear$pred$obs, 
+                     valid.models$svmLinear$pred$yes, 
+                     ci=TRUE,
+                     plot=TRUE, 
+                     legacy.axes=TRUE, percent=TRUE, 
+                     xlab="False Positive Percentage", 
+                     ylab="True Postive Percentage", 
+                     col="red", lwd=4, 
+                     print.auc=TRUE,
+                     print.auc.y = 25.1,
+                     add = TRUE
+)
+
+
+
+legend("bottomright", 
+       legend=c( "svm Linear Training", "svm Linear Validation" ), 
+       col=c( "darkblue", "red" ), 
+       lwd=4
+)
+
+
+
+
+frame()
+
+rocobj_models_svmRadial <- roc(models$svmRadial$pred$obs, 
+                               models$svmRadial$pred$yes, 
+                               ci=TRUE,
+                               plot=TRUE, 
+                               legacy.axes=TRUE, percent=TRUE, 
+                               xlab="False Positive Percentage", 
+                               ylab="True Postive Percentage", 
+                               col="darkblue", lwd=4, 
+                               print.auc=TRUE,
+                               print.auc.y = 35.1
+                               #add = TRUE
+)
+
+rocobj_models_svmLinearVa <- roc(valid.models$svmRadial$pred$obs, 
+                                 valid.models$svmRadial$pred$yes, 
+                                 ci=TRUE,
+                                 plot=TRUE, 
+                                 legacy.axes=TRUE, percent=TRUE, 
+                                 xlab="False Positive Percentage", 
+                                 ylab="True Postive Percentage", 
+                                 col="red", lwd=4, 
+                                 print.auc=TRUE,
+                                 print.auc.y = 25.1,
+                                 add = TRUE
+)
+
+
+
+legend("bottomright", 
+       legend=c( "svm Radial Training", "svm Radial Validation" ), 
+       col=c( "darkblue", "red" ), 
+       lwd=4
+)
+
+
+
+
+
+frame()
+
+rocobj_models_svmLinear <- roc(models$rf$pred$obs, 
+                               models$rf$pred$yes, 
+                               ci=TRUE,
+                               plot=TRUE, 
+                               legacy.axes=TRUE, percent=TRUE, 
+                               xlab="False Positive Percentage", 
+                               ylab="True Postive Percentage", 
+                               col="darkblue", lwd=4, 
+                               print.auc=TRUE,
+                               print.auc.y = 35.1
+                               #add = TRUE
+)
+
+rocobj_models_svmLinearVa <- roc(valid.models$rf$pred$obs, 
+                                 valid.models$rf$pred$yes, 
+                                 ci=TRUE,
+                                 plot=TRUE, 
+                                 legacy.axes=TRUE, percent=TRUE, 
+                                 xlab="False Positive Percentage", 
+                                 ylab="True Postive Percentage", 
+                                 col="red", lwd=4, 
+                                 print.auc=TRUE,
+                                 print.auc.y = 25.1,
+                                 add = TRUE
+)
+
+
+
+legend("bottomright", 
+       legend=c( "Random Forest Training", "Random Forest Validation" ), 
+       col=c( "darkblue", "red" ), 
+       lwd=4
+)
+
+
+
+
+
+### KNN
+frame()
+
+rocobj_models_ <- roc(models$knn$pred$obs, 
+                               models$knn$pred$yes, 
+                               ci=TRUE,
+                               plot=TRUE, 
+                               legacy.axes=TRUE, percent=TRUE, 
+                               xlab="False Positive Percentage", 
+                               ylab="True Postive Percentage", 
+                               col="darkblue", lwd=4, 
+                               print.auc=TRUE,
+                               print.auc.y = 35.1
+                               #add = TRUE
+)
+
+rocobj_models_knn <- roc(valid.models$knn$pred$obs, 
+                                 valid.models$knn$pred$yes, 
+                                 ci=TRUE,
+                                 plot=TRUE, 
+                                 legacy.axes=TRUE, percent=TRUE, 
+                                 xlab="False Positive Percentage", 
+                                 ylab="True Postive Percentage", 
+                                 col="red", lwd=4, 
+                                 print.auc=TRUE,
+                                 print.auc.y = 25.1,
+                                 add = TRUE
+)
+
+
+
+legend("bottomright", 
+       legend=c( "KNN Training", "KNN Validation" ), 
+       col=c( "darkblue", "red" ), 
+       lwd=4
+)
+
+
+
+### xgbDART
+frame()
+
+rocobj_models_svmLinear <- roc(models$xgbDART$pred$obs, 
+                               models$xgbDART$pred$yes, 
+                               ci=TRUE,
+                               plot=TRUE, 
+                               legacy.axes=TRUE, percent=TRUE, 
+                               xlab="False Positive Percentage", 
+                               ylab="True Postive Percentage", 
+                               col="darkblue", lwd=4, 
+                               print.auc=TRUE,
+                               print.auc.y = 35.1
+                               #add = TRUE
+)
+
+rocobj_models_svmLinearVa <- roc(valid.models$xgbDART$pred$obs, 
+                                 valid.models$xgbDART$pred$yes, 
+                                 ci=TRUE,
+                                 plot=TRUE, 
+                                 legacy.axes=TRUE, percent=TRUE, 
+                                 xlab="False Positive Percentage", 
+                                 ylab="True Postive Percentage", 
+                                 col="red", lwd=4, 
+                                 print.auc=TRUE,
+                                 print.auc.y = 25.1,
+                                 add = TRUE
+)
+
+
+
+legend("bottomright", 
+       legend=c( "xgbDART Training", "xgbDART Validation" ), 
+       col=c( "darkblue", "red" ), 
+       lwd=4
+)
+
+
+## MARS
+frame()
+
+rocobj_models_mars <- roc(models$earth$pred$obs, 
+                               models$earth$pred$yes, 
+                               ci=TRUE,
+                               plot=TRUE, 
+                               legacy.axes=TRUE, percent=TRUE, 
+                               xlab="False Positive Percentage", 
+                               ylab="True Postive Percentage", 
+                               col="darkblue", lwd=4, 
+                               print.auc=TRUE,
+                               print.auc.y = 35.1
+                               #add = TRUE
+)
+
+rocobj_models_svmLinearVa <- roc(valid.models$earth$pred$obs, 
+                                 valid.models$earth$pred$yes, 
+                                 ci=TRUE,
+                                 plot=TRUE, 
+                                 legacy.axes=TRUE, percent=TRUE, 
+                                 xlab="False Positive Percentage", 
+                                 ylab="True Postive Percentage", 
+                                 col="red", lwd=4, 
+                                 print.auc=TRUE,
+                                 print.auc.y = 25.1,
+                                 add = TRUE
+)
+
+
+
+legend("bottomright", 
+       legend=c( "MARS Training", "MARS Validation" ), 
+       col=c( "darkblue", "red" ), 
        lwd=4
 )
 
