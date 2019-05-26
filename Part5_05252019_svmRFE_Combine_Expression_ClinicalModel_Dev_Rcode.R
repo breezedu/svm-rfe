@@ -1140,14 +1140,27 @@ rocobj_models <- roc(merged.models$knn$pred$obs,
                      ylab="True Postive Percentage", 
                      col="pink", lwd=4, 
                      print.auc=TRUE,
-                     print.auc.y = 35.1,
+                     print.auc.y = 60,
+                     add = TRUE
+)
+
+rocobj_models <- roc(merged.models$ada$pred$obs, 
+                     merged.models$ada$pred$yes, 
+                     ci=TRUE,
+                     plot=TRUE, 
+                     legacy.axes=TRUE, percent=TRUE, 
+                     xlab="False Positive Percentage", 
+                     ylab="True Postive Percentage", 
+                     col="purple", lwd=4, 
+                     print.auc=TRUE,
+                     print.auc.y = 64,
                      add = TRUE
 )
 
 
 legend("bottomright", 
-       legend=c( "rf", "svmRadial", "svmLinear", "xgbDART", "MARS", "knn" ), 
-       col=c( "darkblue", "green", "red", "black", "yellow", "pink" ), 
+       legend=c( "rf", "svmRadial", "svmLinear", "xgbDART", "MARS", "knn", "ada" ), 
+       col=c( "darkblue", "green", "red", "black", "yellow", "pink", "purple"), 
        lwd=4
 )
 
@@ -1212,12 +1225,12 @@ rocobj_models <- roc(clin.models$svmRadial$pred$obs,
 
 ################################################################################
 ## Plot multi ROCs in one plot
-rocobj_models <- roc(clin.models$svmRadial$pred$obs, 
-                     clin.models$svmRadial$pred$yes, 
+rocobj_models <- roc(merged.models$svmRadial$pred$obs, 
+                     merged.models$svmRadial$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
                      legacy.axes=TRUE, percent=TRUE, 
-                     main="svmRadial Clinical ROC",
+                     main="svmRadial Combined ROC",
                      xlab="False Positive Percentage", 
                      ylab="True Postive Percentage", 
                      col="darkblue", lwd=4, 
@@ -1225,8 +1238,8 @@ rocobj_models <- roc(clin.models$svmRadial$pred$obs,
                      print.auc.y = 40
 )
 
-rocobj_models <- roc(clin.models.valid$svmRadial$pred$obs, 
-                     clin.models.valid$svmRadial$pred$yes, 
+rocobj_models <- roc(merged.models.valid$svmRadial$pred$obs, 
+                     merged.models.valid$svmRadial$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
                      legacy.axes=TRUE, percent=TRUE, 
@@ -1251,11 +1264,12 @@ legend("bottomright",
 #######################
 
 
-rocobj_models <- roc(clin.models$svmLinear$pred$obs, 
-                     clin.models$svmLinear$pred$yes, 
+rocobj_models <- roc(merged.models$svmLinear$pred$obs, 
+                     merged.models$svmLinear$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
                      legacy.axes=TRUE, percent=TRUE, 
+                     main="svmLinear Combined ROC",
                      xlab="False Positive Percentage", 
                      ylab="True Postive Percentage", 
                      col="red", lwd=4, 
@@ -1265,12 +1279,12 @@ rocobj_models <- roc(clin.models$svmLinear$pred$obs,
 
 
 ## Plot multi ROCs in one plot
-rocobj_models <- roc(clin.models$svmLinear$pred$obs, 
-                     clin.models$svmLinear$pred$yes, 
+rocobj_models <- roc(merged.models$svmLinear$pred$obs, 
+                     merged.models$svmLinear$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
                      legacy.axes=TRUE, percent=TRUE, 
-                     main="svmLinear Clinical ROC",
+                     main="svmLinear Combined ROC",
                      xlab="False Positive Percentage", 
                      ylab="True Postive Percentage", 
                      col="darkblue", lwd=4, 
@@ -1278,8 +1292,8 @@ rocobj_models <- roc(clin.models$svmLinear$pred$obs,
                      print.auc.y = 40
 )
 
-rocobj_models <- roc(clin.models.valid$svmLinear$pred$obs, 
-                     clin.models.valid$svmLinear$pred$yes, 
+rocobj_models <- roc(merged.models.valid$svmLinear$pred$obs, 
+                     merged.models.valid$svmLinear$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
                      legacy.axes=TRUE, percent=TRUE, 
@@ -1303,8 +1317,8 @@ legend("bottomright",
 #######################################################
 
 
-rocobj_models <- roc(clin.models$xgbDART$pred$obs, 
-                     clin.models$xgbDART$pred$yes, 
+rocobj_models <- roc(merged.models$xgbDART$pred$obs, 
+                     merged.models$xgbDART$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
                      legacy.axes=TRUE, percent=TRUE, 
@@ -1319,12 +1333,12 @@ rocobj_models <- roc(clin.models$xgbDART$pred$obs,
 
 
 ## Plot multi ROCs in one plot
-rocobj_models <- roc(clin.models$xgbDART$pred$obs, 
-                     clin.models$xgbDART$pred$yes, 
+rocobj_models <- roc(merged.models$xgbDART$pred$obs, 
+                     merged.models$xgbDART$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
                      legacy.axes=TRUE, percent=TRUE, 
-                     main="xgbDART Clinical ROC",
+                     main="xgbDART Combined ROC",
                      xlab="False Positive Percentage", 
                      ylab="True Postive Percentage", 
                      col="darkblue", lwd=4, 
@@ -1332,8 +1346,8 @@ rocobj_models <- roc(clin.models$xgbDART$pred$obs,
                      print.auc.y = 40
 )
 
-rocobj_models <- roc(clin.models.valid$xgbDART$pred$obs, 
-                     clin.models.valid$xgbDART$pred$yes, 
+rocobj_models <- roc(merged.models.valid$xgbDART$pred$obs, 
+                     merged.models.valid$xgbDART$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
                      legacy.axes=TRUE, percent=TRUE, 
@@ -1372,12 +1386,12 @@ rocobj_models <- roc(clin.models$earth$pred$obs,
 )
 
 ## Plot multi ROCs in one plot
-rocobj_models <- roc(clin.models$earth$pred$obs, 
-                     clin.models$earth$pred$yes, 
+rocobj_models <- roc(merged.models$earth$pred$obs, 
+                     merged.models$earth$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
                      legacy.axes=TRUE, percent=TRUE, 
-                     main="MARS Clinical ROC",
+                     main="MARS Combined ROC",
                      xlab="False Positive Percentage", 
                      ylab="True Postive Percentage", 
                      col="darkblue", lwd=4, 
@@ -1385,8 +1399,8 @@ rocobj_models <- roc(clin.models$earth$pred$obs,
                      print.auc.y = 40
 )
 
-rocobj_models <- roc(clin.models.valid$earth$pred$obs, 
-                     clin.models.valid$earth$pred$yes, 
+rocobj_models <- roc(merged.models.valid$earth$pred$obs, 
+                     merged.models.valid$earth$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
                      legacy.axes=TRUE, percent=TRUE, 
@@ -1425,12 +1439,12 @@ rocobj_models <- roc(clin.models$knn$pred$obs,
 
 ###
 ## Plot multi ROCs in one plot
-rocobj_models <- roc(clin.models$knn$pred$obs, 
-                     clin.models$knn$pred$yes, 
+rocobj_models <- roc(merged.models$knn$pred$obs, 
+                     merged.models$knn$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
                      legacy.axes=TRUE, percent=TRUE, 
-                     main="KNN Clinical ROC",
+                     main="KNN Combined ROC",
                      xlab="False Positive Percentage", 
                      ylab="True Postive Percentage", 
                      col="darkblue", lwd=4, 
@@ -1438,8 +1452,8 @@ rocobj_models <- roc(clin.models$knn$pred$obs,
                      print.auc.y = 40
 )
 
-rocobj_models <- roc(clin.models.valid$knn$pred$obs, 
-                     clin.models.valid$knn$pred$yes, 
+rocobj_models <- roc(merged.models.valid$knn$pred$obs, 
+                     merged.models.valid$knn$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
                      legacy.axes=TRUE, percent=TRUE, 
