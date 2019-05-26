@@ -480,7 +480,7 @@ dim(train.data)
 clin.models <- caretList( class ~ ., 
                           data=train.data, 
                           metric='ROC', 
-                          trControl=trainControl, 
+                          trControl=fitControl, 
                           methodList=algorithmList
                         ) 
 
