@@ -1015,14 +1015,14 @@ library(caretEnsemble)
 
 # Stacking Algorithms - Run multiple algos in one call.
 trainControl <- trainControl(method="repeatedcv", 
-                             number=10, 
+                             number=15, 
                              repeats=5,
                              savePredictions=TRUE, 
                              classProbs=TRUE)
 
 fitControl <- trainControl(
                             method = 'repeatedcv',           # k-fold cross validation
-                            number = 10,                     # number of folds
+                            number = 15,                     # number of folds
                             repeats = 5,                    # number of repeats
                             savePredictions = T,             # saves predictions for optimal tuning parameter
                             classProbs = T,                  # should class probabilities be returned
