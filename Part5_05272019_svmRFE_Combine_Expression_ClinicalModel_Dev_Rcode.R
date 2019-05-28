@@ -1209,7 +1209,7 @@ legend("bottomright",
 
 ################################################################################
 ## Plot TWO ROCs in one plot
-rocobj_models <- roc(merged.models$rf$pred$obs, 
+rocobj_models.rf <- roc(merged.models$rf$pred$obs, 
                      merged.models$rf$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
@@ -1222,7 +1222,9 @@ rocobj_models <- roc(merged.models$rf$pred$obs,
                      print.auc.y = 40
 )
 
-rocobj_models <- roc(merged.models.valid$rf$pred$obs, 
+t( coords( smooth( rocobj_models ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+
+rocobj_models.rf.valid <- roc(merged.models.valid$rf$pred$obs, 
                      merged.models.valid$rf$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
@@ -1252,7 +1254,7 @@ legend("bottomright",
 
 ################################################################################
 ## Plot multi ROCs in one plot
-rocobj_models <- roc(merged.models$svmRadial$pred$obs, 
+rocobj_models.svmRadial <- roc(merged.models$svmRadial$pred$obs, 
                      merged.models$svmRadial$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
@@ -1265,7 +1267,7 @@ rocobj_models <- roc(merged.models$svmRadial$pred$obs,
                      print.auc.y = 40
 )
 
-rocobj_models <- roc(merged.models.valid$svmRadial$pred$obs, 
+rocobj_models.svmRadial.valid <- roc(merged.models.valid$svmRadial$pred$obs, 
                      merged.models.valid$svmRadial$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
@@ -1291,7 +1293,7 @@ legend("bottomright",
 #######################
 
 
-rocobj_models <- roc(merged.models$svmLinear$pred$obs, 
+rocobj_models.svmLinear <- roc(merged.models$svmLinear$pred$obs, 
                      merged.models$svmLinear$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
@@ -1306,7 +1308,7 @@ rocobj_models <- roc(merged.models$svmLinear$pred$obs,
 
 
 ## Plot multi ROCs in one plot
-rocobj_models <- roc(merged.models$svmLinear$pred$obs, 
+rocobj_models.svmLinear <- roc(merged.models$svmLinear$pred$obs, 
                      merged.models$svmLinear$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
@@ -1319,7 +1321,7 @@ rocobj_models <- roc(merged.models$svmLinear$pred$obs,
                      print.auc.y = 40
 )
 
-rocobj_models <- roc(merged.models.valid$svmLinear$pred$obs, 
+rocobj_models.svmLinear.valid <- roc(merged.models.valid$svmLinear$pred$obs, 
                      merged.models.valid$svmLinear$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
@@ -1344,7 +1346,7 @@ legend("bottomright",
 #######################################################
 
 
-rocobj_models <- roc(merged.models$xgbDART$pred$obs, 
+rocobj_models.xgbDART <- roc(merged.models$xgbDART$pred$obs, 
                      merged.models$xgbDART$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
@@ -1360,7 +1362,7 @@ rocobj_models <- roc(merged.models$xgbDART$pred$obs,
 
 
 ## Plot multi ROCs in one plot
-rocobj_models <- roc(merged.models$xgbDART$pred$obs, 
+rocobj_models.xgbDART <- roc(merged.models$xgbDART$pred$obs, 
                      merged.models$xgbDART$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
@@ -1373,7 +1375,7 @@ rocobj_models <- roc(merged.models$xgbDART$pred$obs,
                      print.auc.y = 40
 )
 
-rocobj_models <- roc(merged.models.valid$xgbDART$pred$obs, 
+rocobj_models.xgbDART.valid <- roc(merged.models.valid$xgbDART$pred$obs, 
                      merged.models.valid$xgbDART$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
@@ -1413,7 +1415,7 @@ rocobj_models <- roc(clin.models$earth$pred$obs,
 )
 
 ## Plot multi ROCs in one plot
-rocobj_models <- roc(merged.models$earth$pred$obs, 
+rocobj_models.mars <- roc(merged.models$earth$pred$obs, 
                      merged.models$earth$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
@@ -1426,7 +1428,7 @@ rocobj_models <- roc(merged.models$earth$pred$obs,
                      print.auc.y = 40
 )
 
-rocobj_models <- roc(merged.models.valid$earth$pred$obs, 
+rocobj_models.mars.valid <- roc(merged.models.valid$earth$pred$obs, 
                      merged.models.valid$earth$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
@@ -1451,7 +1453,7 @@ legend("bottomright",
 
 
 ##############################################################
-rocobj_models <- roc(clin.models$knn$pred$obs, 
+rocobj_models.knn <- roc(clin.models$knn$pred$obs, 
                      clin.models$knn$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
@@ -1466,7 +1468,7 @@ rocobj_models <- roc(clin.models$knn$pred$obs,
 
 ###
 ## Plot multi ROCs in one plot
-rocobj_models <- roc(merged.models$knn$pred$obs, 
+rocobj_models.knn <- roc(merged.models$knn$pred$obs, 
                      merged.models$knn$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
@@ -1479,7 +1481,7 @@ rocobj_models <- roc(merged.models$knn$pred$obs,
                      print.auc.y = 40
 )
 
-rocobj_models <- roc(merged.models.valid$knn$pred$obs, 
+rocobj_models.knn.valid <- roc(merged.models.valid$knn$pred$obs, 
                      merged.models.valid$knn$pred$yes, 
                      ci=TRUE,
                      plot=TRUE, 
@@ -1508,12 +1510,68 @@ legend("bottomright",
 ############################################################################################
 
 
+## PRINT OUT model spec/sens/roc/ppn/cpn table:
+
+t( coords( smooth( rocobj_models.knn ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+t( coords( smooth( rocobj_models.knn.valid ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+
+t( coords( smooth( rocobj_models.mars ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+t( coords( smooth( rocobj_models.mars.valid ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+
+t( coords( smooth( rocobj_models.svmLinear ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+t( coords( smooth( rocobj_models.svmLinear.valid ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+
+t( coords( smooth( rocobj_models.svmRadial ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+t( coords( smooth( rocobj_models.svmRadial.valid ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+
+t( coords( smooth( rocobj_models.rf ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+t( coords( smooth( rocobj_models.rf.valid ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+
+t( coords( smooth( rocobj_models.xgbDART ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+t( coords( smooth( rocobj_models.xgbDART.valid ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+
+t( coords( smooth( rocobj_models.knn ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+t( coords( smooth( rocobj_models.knn.valid ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
 
 
-
-
-
-
+# 
+# > t( coords( smooth( rocobj_models.knn ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+# specificity sensitivity     ppv   npv
+# [1,]    99.99285         0.9 98.7924 60.82
+# > t( coords( smooth( rocobj_models.knn.valid ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+# specificity sensitivity      ppv      npv
+# [1,]    99.99794         0.9 99.65745 60.21629
+# > t( coords( smooth( rocobj_models.mars ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+# specificity sensitivity ppv     npv
+# [1,]         100         0.9 100 60.8217
+# > t( coords( smooth( rocobj_models.mars.valid ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+# specificity sensitivity     ppv      npv
+# [1,]     99.2355         0.9 43.9723 60.03279
+# > t( coords( smooth( rocobj_models.svmLinear ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+# specificity sensitivity      ppv      npv
+# [1,]    99.99764         0.9 99.59895 60.82114
+# > t( coords( smooth( rocobj_models.svmLinear.valid ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+# specificity sensitivity      ppv      npv
+# [1,]    99.82948         0.9 77.86917 60.17589
+# > t( coords( smooth( rocobj_models.svmRadial ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+# specificity sensitivity      ppv      npv
+# [1,]    99.98568         0.9 97.61021 60.81829
+# > t( coords( smooth( rocobj_models.svmRadial.valid ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+# specificity sensitivity      ppv      npv
+# [1,]    99.89311         0.9 84.87855 60.19116
+# > t( coords( smooth( rocobj_models.rf ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+# specificity sensitivity     ppv     npv
+# [1,]         100         0.9 99.9998 60.8217
+# > t( coords( smooth( rocobj_models.rf.valid ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+# specificity sensitivity      ppv      npv
+# [1,]    99.98276         0.9 97.20752 60.21265
+# > t( coords( smooth( rocobj_models.xgbDART ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+# specificity sensitivity      ppv      npv
+# [1,]     99.9999         0.9 99.98294 60.82168
+# > t( coords( smooth( rocobj_models.xgbDART.valid ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+# specificity sensitivity      ppv      npv
+# [1,]    99.99739         0.9 99.56637 60.21615
+# > 
 
 
 
