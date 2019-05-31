@@ -358,7 +358,7 @@ set.seed(100)
 clin.model_svmRadial = train(class ~ ., 
                         data=train.data, 
                         method='svmRadial', 
-                        #tuneLength = 4, 
+                        tuneLength = 20, 
                         metric='ROC', 
                         trControl = fitControl
                         )
@@ -367,7 +367,7 @@ set.seed(100)
 clin.model_svmRadial.valid = train(class ~ ., 
                              data=test.data, 
                              method='svmRadial', 
-                             # tuneLength = 4, 
+                             tuneLength = 20, 
                              metric='ROC', 
                              trControl = fitControl
                           )
@@ -428,6 +428,265 @@ rocobj_clinical.svmRadial.valid <- roc(clin.model_svmRadial.valid$pred$obs,
 
 legend("bottomright", 
        legend=c( "svmRadial Training Set", "svmRadial Validation" ), 
+       col=c( "darkblue", "red" ), 
+       lwd=4
+)
+
+
+
+
+
+
+
+#############################
+#### Step 5.1 choose KNN method
+set.seed(100)
+clin.model_knn = train(class ~ ., 
+                             data=train.data, 
+                             method='knn', 
+                             tuneLength = 20, 
+                             metric='ROC', 
+                             trControl = fitControl
+)
+
+set.seed(100)
+clin.model_knn.valid = train(class ~ ., 
+                                   data=test.data, 
+                                   method='knn', 
+                                   tuneLength = 20, 
+                                   metric='ROC', 
+                                   trControl = fitControl
+)
+
+
+#############################
+## briefly check the svmLinear results
+clin.model_knn
+
+
+
+varimp_svmLinear <- varImp(clin.model_knn)
+plot(varimp_svmLinear, main="Clinical Variable Importance with KNN")
+
+
+########################################################################################
+## step 4.2
+## plot roc for the training data
+## We can calculate the area under the curve...
+## Select a parameter setting
+## selectedIndices <- model_mars2$pred
+# library(pROC)
+
+
+
+
+
+################################################################################
+## Plot multi ROCs in one plot
+rocobj_clinical.knn <- roc(clin.model_knn$pred$obs, 
+                                 clin.model_knn$pred$yes, 
+                                 ci=TRUE,
+                                 plot=TRUE, 
+                                 legacy.axes=TRUE, percent=TRUE, 
+                                 main="KNN Clinical ROC",
+                                 xlab="False Positive Percentage", 
+                                 ylab="True Postive Percentage", 
+                                 col="darkblue", lwd=4, 
+                                 print.auc=TRUE,
+                                 print.auc.y = 40
+)
+
+rocobj_clinical.knn.valid <- roc(clin.model_knn.valid$pred$obs, 
+                                       clin.model_knn.valid$pred$yes, 
+                                       ci=TRUE,
+                                       plot=TRUE, 
+                                       legacy.axes=TRUE, percent=TRUE, 
+                                       xlab="False Positive Percentage", 
+                                       ylab="True Postive Percentage", 
+                                       col="red", lwd=4, 
+                                       print.auc=TRUE,
+                                       print.auc.y = 30,
+                                       add = TRUE
+)
+
+
+
+
+legend("bottomright", 
+       legend=c( "KNN Training Set", "KNN Validation" ), 
+       col=c( "darkblue", "red" ), 
+       lwd=4
+)
+
+
+
+
+
+#####################################################
+
+## Random Forest
+
+
+#############################
+#### Step 5.1 choose Random Forest method
+set.seed(123)
+clin.model_rf = train(class ~ ., 
+                           data=train.data, 
+                           method='rf', 
+                           tuneLength = 11, 
+                           metric='ROC', 
+                           trControl = fitControl
+)
+
+set.seed(123)
+clin.model_rf.valid = train(class ~ ., 
+                                 data=test.data, 
+                                 method='rf', 
+                                 tuneLength = 11, 
+                                 metric='ROC', 
+                                 trControl = fitControl
+)
+
+
+#############################
+## briefly check the svmLinear results
+clin.model_rf
+
+
+
+varimp_svmLinear <- varImp(clin.model_rf)
+plot(varimp_svmLinear, main="Clinical Variable Importance with Random Forest")
+
+
+########################################################################################
+## step 4.2
+## plot roc for the training data
+## We can calculate the area under the curve...
+## Select a parameter setting
+## selectedIndices <- model_mars2$pred
+# library(pROC)
+
+
+
+
+
+################################################################################
+## Plot multi ROCs in one plot
+rocobj_clinical.rf <- roc(clin.model_rf$pred$obs, 
+                               clin.model_rf$pred$yes, 
+                               ci=TRUE,
+                               plot=TRUE, 
+                               legacy.axes=TRUE, percent=TRUE, 
+                               main="Random Forest Clinical ROC",
+                               xlab="False Positive Percentage", 
+                               ylab="True Postive Percentage", 
+                               col="darkblue", lwd=4, 
+                               print.auc=TRUE,
+                               print.auc.y = 40
+)
+
+rocobj_clinical.rf.valid <- roc(clin.model_rf.valid$pred$obs, 
+                                     clin.model_rf.valid$pred$yes, 
+                                     ci=TRUE,
+                                     plot=TRUE, 
+                                     legacy.axes=TRUE, percent=TRUE, 
+                                     xlab="False Positive Percentage", 
+                                     ylab="True Postive Percentage", 
+                                     col="red", lwd=4, 
+                                     print.auc=TRUE,
+                                     print.auc.y = 30,
+                                     add = TRUE
+)
+
+
+
+
+legend("bottomright", 
+       legend=c( "Random Forest Training Set", "Random Forest Validation Set" ), 
+       col=c( "darkblue", "red" ), 
+       lwd=4
+)
+
+
+
+
+
+#############################
+#### Step 5.1 choose xgbDART method
+set.seed(100)
+clin.model_xgbDART = train(class ~ ., 
+                             data=train.data, 
+                             method='xgbDART', 
+                             tuneLength = 4, 
+                             metric='ROC', 
+                             trControl = fitControl
+)
+
+set.seed(100)
+clin.model_xgbDART.valid = train(class ~ ., 
+                                   data=test.data, 
+                                   method='xgbDART', 
+                                   tuneLength = 4, 
+                                   metric='ROC', 
+                                   trControl = fitControl
+)
+
+
+#############################
+## briefly check the svmLinear results
+clin.model_xgbDART
+
+
+
+varimp_svmLinear <- varImp(clin.model_xgbDART)
+plot(varimp_svmLinear, main="Clinical Variable Importance with xgbDART")
+
+
+########################################################################################
+## step 4.2
+## plot roc for the training data
+## We can calculate the area under the curve...
+## Select a parameter setting
+## selectedIndices <- model_mars2$pred
+# library(pROC)
+
+
+
+
+
+################################################################################
+## Plot multi ROCs in one plot
+rocobj_clinical.xgbDART <- roc(clin.model_xgbDART$pred$obs, 
+                                 clin.model_xgbDART$pred$yes, 
+                                 ci=TRUE,
+                                 plot=TRUE, 
+                                 legacy.axes=TRUE, percent=TRUE, 
+                                 main="xgbDART Clinical ROC",
+                                 xlab="False Positive Percentage", 
+                                 ylab="True Postive Percentage", 
+                                 col="darkblue", lwd=4, 
+                                 print.auc=TRUE,
+                                 print.auc.y = 40
+)
+
+rocobj_clinical.xgbDART.valid <- roc(clin.model_xgbDART.valid$pred$obs, 
+                                       clin.model_xgbDART.valid$pred$yes, 
+                                       ci=TRUE,
+                                       plot=TRUE, 
+                                       legacy.axes=TRUE, percent=TRUE, 
+                                       xlab="False Positive Percentage", 
+                                       ylab="True Postive Percentage", 
+                                       col="red", lwd=4, 
+                                       print.auc=TRUE,
+                                       print.auc.y = 30,
+                                       add = TRUE
+)
+
+
+
+
+legend("bottomright", 
+       legend=c( "xgbDART Training Set", "xgbDART Validation" ), 
        col=c( "darkblue", "red" ), 
        lwd=4
 )
