@@ -312,16 +312,66 @@ rocobj_svmlinear.valid <- roc(clin.model_svmLinear.valid$pred$obs,
 
 
 
+################################################################################
+## Plot multi ROCs in one plot
+rocobj_clinical.svmLinear <- roc(clin.model_svmLinear$pred$obs, 
+                               clin.model_svmLinear$pred$yes, 
+                               ci=TRUE,
+                               plot=TRUE, 
+                               legacy.axes=TRUE, percent=TRUE, 
+                               main="svmLinear Clinical ROC",
+                               xlab="False Positive Percentage", 
+                               ylab="True Postive Percentage", 
+                               col="darkblue", lwd=4, 
+                               print.auc=TRUE,
+                               print.auc.y = 40
+)
+
+rocobj_clinical.svmLinear.valid <- roc(clin.model_svmLinear.valid$pred$obs, 
+                                       clin.model_svmLinear.valid$pred$yes, 
+                                     ci=TRUE,
+                                     plot=TRUE, 
+                                     legacy.axes=TRUE, percent=TRUE, 
+                                     xlab="False Positive Percentage", 
+                                     ylab="True Postive Percentage", 
+                                     col="red", lwd=4, 
+                                     print.auc=TRUE,
+                                     print.auc.y = 30,
+                                     add = TRUE
+)
+
+
+
+
+legend("bottomright", 
+       legend=c( "svmLinear Training Set", "svmLinear Validation" ), 
+       col=c( "darkblue", "red" ), 
+       lwd=4
+)
+
+
+
+
 #############################
 #### Step 5.1 choose svm_Radial method
-set.seed(123)
+set.seed(100)
 clin.model_svmRadial = train(class ~ ., 
                         data=train.data, 
                         method='svmRadial', 
-                        #tuneLength = 8, 
+                        #tuneLength = 4, 
                         metric='ROC', 
                         trControl = fitControl
                         )
+
+set.seed(100)
+clin.model_svmRadial.valid = train(class ~ ., 
+                             data=test.data, 
+                             method='svmRadial', 
+                             # tuneLength = 4, 
+                             metric='ROC', 
+                             trControl = fitControl
+                          )
+
 
 #############################
 ## briefly check the svmLinear results
@@ -341,15 +391,47 @@ plot(varimp_svmLinear, main="Clinical Variable Importance with svmRadial")
 ## selectedIndices <- model_mars2$pred
 # library(pROC)
 
-rocobj_svmRadial <- roc(clin.model_svmRadial$pred$obs, 
-                        clin.model_svmRadial$pred$yes, ci=TRUE,
-                        plot=TRUE, 
-                        legacy.axes=TRUE, percent=TRUE,
-                        main="svmRadial with Cinical Data",
-                        xlab="False Positive Percentage", 
-                        ylab="True Postive Percentage", 
-                        col="darkblue", lwd=4, 
-                        print.auc=TRUE)
+
+
+
+
+################################################################################
+## Plot multi ROCs in one plot
+rocobj_clinical.svmRadial <- roc(clin.model_svmRadial$pred$obs, 
+                                 clin.model_svmRadial$pred$yes, 
+                                 ci=TRUE,
+                                 plot=TRUE, 
+                                 legacy.axes=TRUE, percent=TRUE, 
+                                 main="svmRadial Clinical ROC",
+                                 xlab="False Positive Percentage", 
+                                 ylab="True Postive Percentage", 
+                                 col="darkblue", lwd=4, 
+                                 print.auc=TRUE,
+                                 print.auc.y = 40
+)
+
+rocobj_clinical.svmRadial.valid <- roc(clin.model_svmRadial.valid$pred$obs, 
+                                       clin.model_svmRadial.valid$pred$yes, 
+                                       ci=TRUE,
+                                       plot=TRUE, 
+                                       legacy.axes=TRUE, percent=TRUE, 
+                                       xlab="False Positive Percentage", 
+                                       ylab="True Postive Percentage", 
+                                       col="red", lwd=4, 
+                                       print.auc=TRUE,
+                                       print.auc.y = 30,
+                                       add = TRUE
+)
+
+
+
+
+legend("bottomright", 
+       legend=c( "svmRadial Training Set", "svmRadial Validation" ), 
+       col=c( "darkblue", "red" ), 
+       lwd=4
+)
+
 
 
 
