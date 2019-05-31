@@ -694,6 +694,34 @@ legend("bottomright",
 
 
 
+## PRINT OUT model spec/sens/roc/ppn/cpn table:
+
+t( coords( smooth( rocobj_clinical.knn ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+t( coords( smooth( rocobj_clinical.knn.valid ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+
+t( coords( smooth( rocobj_models.mars ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+t( coords( smooth( rocobj_models.mars.valid ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+
+t( coords( smooth( rocobj_clinical.svmLinear ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+t( coords( smooth( rocobj_clinical.svmLinear.valid ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+
+t( coords( smooth( rocobj_clinical.svmRadial ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+t( coords( smooth( rocobj_clinical.svmRadial.valid ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+
+t( coords( smooth( rocobj_clinical.rf ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+t( coords( smooth( rocobj_clinical.rf.valid ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+
+t( coords( smooth( rocobj_clinical.xgbDART ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+t( coords( smooth( rocobj_clinical.xgbDART.valid ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+
+t( coords( smooth( rocobj_clinical.knn ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+t( coords( smooth( rocobj_clinical.knn.valid ), x = 0.9, input = "sensitivity", ret = c("specificity", "sensitivity", "ppv", "npv") ))
+
+
+
+
+
+
 #########################################################################################
 ### clinical heatmap 
 library(corrplot)
