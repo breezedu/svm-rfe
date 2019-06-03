@@ -617,7 +617,7 @@ set.seed(100)
 clin.model_xgbDART = train(class ~ ., 
                              data=train.data, 
                              method='xgbDART', 
-                             tuneLength = 4, 
+                             #tuneLength = 4, 
                              metric='ROC', 
                              trControl = fitControl
 )
@@ -626,7 +626,7 @@ set.seed(100)
 clin.model_xgbDART.valid = train(class ~ ., 
                                    data=test.data, 
                                    method='xgbDART', 
-                                   tuneLength = 4, 
+                                   #tuneLength = 2, 
                                    metric='ROC', 
                                    trControl = fitControl
 )
@@ -689,7 +689,7 @@ legend("bottomright",
        legend=c( "xgbDART Training Set", "xgbDART Validation" ), 
        col=c( "darkblue", "red" ), 
        lwd=4
-)
+        )
 
 
 
