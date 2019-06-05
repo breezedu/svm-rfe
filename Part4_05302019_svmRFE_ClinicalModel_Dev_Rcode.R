@@ -613,20 +613,20 @@ legend("bottomright",
 
 #############################
 #### Step 5.1 choose xgbDART method
-set.seed(100)
+set.seed(123)
 clin.model_xgbDART = train(class ~ ., 
                              data=train.data, 
                              method='xgbDART', 
-                             #tuneLength = 4, 
+                             tuneLength = 14, 
                              metric='ROC', 
                              trControl = fitControl
 )
 
-set.seed(100)
+set.seed(123)
 clin.model_xgbDART.valid = train(class ~ ., 
                                    data=test.data, 
                                    method='xgbDART', 
-                                   #tuneLength = 2, 
+                                   tuneLength = 14, 
                                    metric='ROC', 
                                    trControl = fitControl
 )
@@ -670,7 +670,7 @@ rocobj_clinical.xgbDART <- roc(clin.model_xgbDART$pred$obs,
 )
 
 rocobj_clinical.xgbDART.valid <- roc(clin.model_xgbDART.valid$pred$obs, 
-                                       clin.model_xgbDART.valid$pred$yes, 
+                                     clin.model_xgbDART.valid$pred$yes, 
                                        ci=TRUE,
                                        plot=TRUE, 
                                        legacy.axes=TRUE, percent=TRUE, 
